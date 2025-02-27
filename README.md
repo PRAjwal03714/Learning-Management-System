@@ -106,10 +106,4 @@ backend-lms/
 
 ---
 
-## 📌 Next Steps
-- ✅ Add PostgreSQL Database (Replace JSON storage)
-- ✅ Implement OAuth (Google, Facebook Login)
-- ✅ Add Forgot Password & OTP Verification
-
-💬 Need help? Open an issue or contribute! 🚀
 
