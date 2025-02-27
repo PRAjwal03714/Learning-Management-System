@@ -1,0 +1,16 @@
+[
+  {
+    "id": 1,
+    "name": "prajwal",
+    "email": "pvenugop@gmail.com",
+    "password": "$2b$10$uk34WIechAJKoD2v4AwAc.k/GJYtdppY9M8eQjcj33XbBD04vCWpS",
+    "role": "instructor"
+  },
+  {
+    "id": 2,
+    "name": "pRAJ",
+    "email": "pvenugopq@gmail.com",
+    "password": "$2b$10$yxtiDrnU.rMAJItZ1XDV6OfL7.FPmgq9hdGwBBFjIF4Pob1nLcsPi",
+    "role": "student"
+  }
+]
