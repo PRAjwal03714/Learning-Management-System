@@ -10,6 +10,8 @@ app.use(express.json());
 
 // Routes (API endpoints)
 app.use("/api/auth", require("./src/routes/authRoutes"));
+app.use("/api/protected", require("./src/routes/protectedRoutes")); // Ensure this line is present
+
 
 // Start the server
 const PORT = process.env.PORT || 5001;

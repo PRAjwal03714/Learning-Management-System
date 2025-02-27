@@ -12,5 +12,19 @@
     "email": "pvenugopq@gmail.com",
     "password": "$2b$10$yxtiDrnU.rMAJItZ1XDV6OfL7.FPmgq9hdGwBBFjIF4Pob1nLcsPi",
     "role": "student"
+  },
+  {
+    "id": 3,
+    "name": "John Doe",
+    "email": "john@example.com",
+    "password": "$2b$10$gM8q4SHu3rqBuQC9keJ03eXKGVvyfWXnbyu5Ftoryg0.cxE/pQCB.",
+    "role": "student"
+  },
+  {
+    "id": 4,
+    "name": "John Doe",
+    "email": "john2@example.com",
+    "password": "$2b$10$kaQgnEUkx180D.fsCZM/A.sp3YtrpKFWx3RIJnMv0up.VmmjepxWu",
+    "role": "student"
   }
 ]
