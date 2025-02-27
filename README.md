@@ -47,8 +47,8 @@ backend-lms/
 │   ├── middlewares/     # Authentication & error handling
 │   ├── routes/          # Express API routes
 │   ├── users.json       # Temporary user storage
-│   ├── app.js           # Express app setup
-│   ├── server.js        # Server entry point
+│                        # Express app setup
+│── server.js            # Server entry point
 │── .env                 # Environment variables
 │── package.json         # Dependencies
 │── README.md            # Documentation
