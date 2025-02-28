@@ -1,12 +1,17 @@
 require("dotenv").config();
+const passport = require("passport");
 const express = require("express");
 const cors = require("cors");
+require("./src/middlewares/authOAuth"); // Import OAuth Strategies
+
 
 const app = express();
 
 // Middleware (to parse JSON and enable CORS)
 app.use(cors());
 app.use(express.json());
+app.use(passport.initialize());
+
 
 // Routes (API endpoints)
 app.use("/api/auth", require("./src/routes/authRoutes"));

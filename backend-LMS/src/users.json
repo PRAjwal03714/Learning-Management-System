@@ -26,5 +26,26 @@
     "email": "john2@example.com",
     "password": "$2b$10$kaQgnEUkx180D.fsCZM/A.sp3YtrpKFWx3RIJnMv0up.VmmjepxWu",
     "role": "student"
+  },
+  {
+    "id": 5,
+    "name": "John Doe",
+    "email": "john@example123.com",
+    "password": "$2b$10$vjkgo6tqilKLUXCLFiXcXuuKLUwAmS5AZzZ.vPfql0KFivF8vlvz.",
+    "role": "student"
+  },
+  {
+    "id": 6,
+    "name": "Rakshith",
+    "email": "vprajwal714@gmail.com.com",
+    "password": "$2b$10$4cyq8d.cUDjpSk6K.ZaDCO046W1adSJlZdMQ1l0h/TMICxGz9AAE6",
+    "role": "student"
+  },
+  {
+    "id": 7,
+    "name": "Rakshith",
+    "email": "vprajwal714@gmail.com",
+    "password": "$2b$10$rq6sDzzE586e/pXyUxZ1Bu.mVqmpaTiYcfRANgC6KAhtACqTyvVKy",
+    "role": "student"
   }
 ]
