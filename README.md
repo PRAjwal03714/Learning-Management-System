@@ -7,7 +7,7 @@ the formatting or all of the style classes
 
 ## How to use <br>
 - make sure you have node installed and simply run npm run dev or npx run dev</br>
-- got to localhost:3000
+- go to localhost:3000
 - currently doesn't have links to checkout seperate pages just enter the page in as the route to view it
 - for any other parts of nextjs that are unfamiliar checkout the nextjs documentation. It has very solid explanations on all features
 
