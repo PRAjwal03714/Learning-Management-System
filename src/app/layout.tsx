@@ -11,7 +11,7 @@ export default function RootLayout({children,}: {children: React.ReactNode;}) {
     <html lang="en">
       <body>
         <div>
-          <div className='flex bg-gradient-to-r from-blue-800 via-purple-500 to-pink-400 static w-screen h-18 shadow-black-400/50 shadow-2xl'>
+          <div className='flex bg-gradient-to-r from-blue-800 via-purple-500 to-pink-400 absolute w-screen h-18 shadow-2xl'>
             <div className='content-end'>
               <h1 className='pb-2 pl-2 font-sans text-5xl text-white'>Studymate</h1>
             </div>
