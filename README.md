@@ -10,6 +10,7 @@ This is the backend for the Learning Management System (LMS), built using **Node
 - Middleware for Authentication & Security
 - Temporary Data Storage in JSON File (Replaceable with PostgreSQL)
 - Express API Endpoints for Authentication
+- **Password Reset & Recovery** (Security Questions, Reset Link, OTP via Email/Text/Duo)
 
 ---
 
@@ -38,6 +39,7 @@ FACEBOOK_CLIENT_SECRET=your-facebook-app-secret
 EMAIL_USER=your-email@gmail.com
 EMAIL_PASS=your-email-password
 EMAIL_SERVICE=gmail
+
 ```
 
 ### 4️⃣ Run the Server
@@ -77,14 +79,16 @@ backend-lms/
   "name": "John Doe",
   "email": "john@example.com",
   "password": "password123",
-  "role": "student"
+  "role": "student",
+  "securityQuestion": "What is your favorite color?",
+  "securityAnswer": "blue"
 }
 ```
 ✅ **Response:**
 ```json
 {
   "message": "User registered successfully",
-  "user": { "id": 1, "name": "John Doe", "email": "john@example.com", "role": "student" }
+  "user": { "id": "uuid", "name": "John Doe", "email": "john@example.com", "role": "student" }
 }
 ```
 
@@ -184,10 +188,75 @@ backend-lms/
 
 ---
 
-## 📌 Next Steps
-- ✅ Store OAuth users in PostgreSQL
-- ✅ Implement Multi-Factor Authentication (MFA)
-- ✅ Add Swagger API Documentation
+### **Password Reset & Recovery**
 
-💬 Need help? Open an issue or contribute! 🚀
+#### 4️⃣ Verify Security Question Before Password Reset
+**POST** `/api/auth/verify-security-question`
+```json
+{
+  "email": "john@example.com",
+  "securityAnswer": "blue"
+}
+```
+✅ **Response:**
+```json
+{
+  "message": "Security answer verified. Use this token to reset your password.",
+  "resetToken": "550e8400-e29b-41d4-a716-446655440000"
+}
+```
+
+#### 5️⃣ Reset Password Using Token
+**POST** `/api/auth/reset-password`
+```json
+{
+  "email": "john@example.com",
+  "newPassword": "newpass123",
+  "resetToken": "550e8400-e29b-41d4-a716-446655440000"
+}
+```
+✅ **Response:**
+```json
+{
+  "message": "Password reset successful. You can now log in with your new password."
+}
+```
+
+#### 6️⃣ OTP-Based Password Reset
+**POST** `/api/auth/send-otp`
+```json
+{
+  "email": "john@example.com"
+}
+```
+✅ **Response:**
+```json
+{
+  "message": "OTP sent to email. Check your inbox."
+}
+```
+
+**POST** `/api/auth/verify-otp`
+```json
+{
+  "email": "john@example.com",
+  "otp": "123456"
+}
+```
+✅ **Response:**
+```json
+{
+  "message": "OTP verified. You can now reset your password."
+}
+```
+
+---
+
+## 🔜 Next Steps
+- **Implement Duo Authentication for Additional Security**
+  - Require Duo MFA after login.
+  - Users must approve login via **Duo Push, SMS, or phone call**.
+  - Secure accounts from unauthorized access.
+- **Store Password Reset Tokens in Database**
+- **Enhance API Security with Rate Limiting & Logging**
 
