@@ -1,4 +1,4 @@
-export default function login() {
+export default function dashboard() {
     return (
         <div id='wrapper' className='flex flex-col h-full w-full justify-center'>
             
