@@ -5,6 +5,7 @@ const { register, login } = require("../controllers/authController");
 const { check } = require("express-validator");
 const { sendOTP, verifyOTP } = require("../controllers/authController");
 const { requestPasswordReset, resetPassword } = require("../controllers/authController");
+const { verifySecurityQuestion } = require("../controllers/authController");
 
 const router = express.Router();
 
@@ -23,7 +24,7 @@ router.post(
 // 🟢 Request Password Reset
 router.post("/request-password-reset", requestPasswordReset);
 // 🟢 Reset Password
-router.post("/reset-password/:token", resetPassword);
+router.post("/reset-password/", resetPassword);
 // 🟢 Send OTP for Reset
 router.post("/send-otp", sendOTP);
 
@@ -56,3 +57,4 @@ router.get("/facebook/callback", passport.authenticate("facebook", { session: fa
 );
 
 module.exports = router;
+router.post("/verify-security-question", verifySecurityQuestion);

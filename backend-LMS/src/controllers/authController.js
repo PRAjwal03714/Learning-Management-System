@@ -23,11 +23,12 @@ let resetTokens = {}; // Temporary storage for reset tokens
 let otpStore = {}; // Temporary storage for OTPs
 
 // 🟢 User Registration
+// 🟢 User Registration with Security Question
 exports.register = async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
 
-  const { name, email, password, role } = req.body;
+  const { name, email, password, role, securityQuestion, securityAnswer } = req.body;
   let users = loadUsers();
 
   // Check if email already exists
@@ -36,11 +37,22 @@ exports.register = async (req, res) => {
   }
 
   const hashedPassword = await bcrypt.hash(password, 10);
-  const newUser = { id: users.length + 1, name, email, password: hashedPassword, role };
+  const hashedSecurityAnswer = await bcrypt.hash(securityAnswer, 10); // Encrypt security answer
+
+  const newUser = { 
+    id: uuidv4(), 
+    name, 
+    email, 
+    password: hashedPassword, 
+    role, 
+    securityQuestion, 
+    securityAnswer: hashedSecurityAnswer // Store hashed security answer
+  };
+
   users.push(newUser);
   saveUsers(users);
 
-  res.status(201).json({ message: "User registered successfully", user: newUser });
+  res.status(201).json({ message: "User registered successfully", user: { id: newUser.id, name, email, role } });
 };
 
 // 🟢 User Login
@@ -76,13 +88,13 @@ exports.requestPasswordReset = async (req, res) => {
 };
 
 // 🟢 Reset Password (Verify Token & Update Password)
+// 🟢 Reset Password Using Reset Token
 exports.resetPassword = async (req, res) => {
-  const { token } = req.params;
-  const { email, newPassword } = req.body;
+  const { email, newPassword, resetToken } = req.body;
   let users = loadUsers();
 
   // Check if token is valid
-  if (!resetTokens[email] || resetTokens[email].token !== token || Date.now() > resetTokens[email].expires) {
+  if (!resetTokens[email] || resetTokens[email].token !== resetToken || Date.now() > resetTokens[email].expires) {
     return res.status(400).json({ message: "Invalid or expired reset token" });
   }
 
@@ -97,20 +109,16 @@ exports.resetPassword = async (req, res) => {
   res.json({ message: "Password reset successful. You can now log in with your new password." });
 };
 
+
 // 🟢 Send OTP for Password Reset
 exports.sendOTP = async (req, res) => {
   const { email } = req.body;
-  let users = loadUsers();
-
-  // Check if user exists
-  const user = users.find(u => u.email === email);
-  if (!user) return res.status(404).json({ message: "User not found" });
-
+  
   // Generate 6-digit OTP
   const otp = Math.floor(100000 + Math.random() * 900000);
   otpStore[email] = { otp, expires: Date.now() + 5 * 60 * 1000 }; // Valid for 5 mins
 
-  // Simulate sending OTP (replace with actual email/SMS logic)
+  // Simulate sending OTP (replace with email/SMS logic)
   console.log(`OTP for ${email}: ${otp}`);
 
   res.json({ message: "OTP sent to email. Check your inbox." });
@@ -127,3 +135,24 @@ exports.verifyOTP = async (req, res) => {
   delete otpStore[email]; // Remove OTP after use
   res.json({ message: "OTP verified. You can now reset your password." });
 };
+// 🟢 Verify Security Question Before Resetting Password
+// Modify function to generate a reset token
+exports.verifySecurityQuestion = async (req, res) => {
+  const { email, securityAnswer } = req.body;
+  let users = loadUsers();
+
+  // Find user
+  const user = users.find(u => u.email === email);
+  if (!user) return res.status(404).json({ message: "User not found" });
+
+  // Verify security answer
+  const isMatch = await bcrypt.compare(securityAnswer, user.securityAnswer);
+  if (!isMatch) return res.status(400).json({ message: "Incorrect security answer" });
+
+  // Generate reset token (valid for 15 minutes)
+  const resetToken = uuidv4();
+  resetTokens[email] = { token: resetToken, expires: Date.now() + 15 * 60 * 1000 };
+
+  res.json({ message: "Security answer verified. Use this token to reset your password.", resetToken });
+};
+

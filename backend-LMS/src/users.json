@@ -45,7 +45,37 @@
     "id": 7,
     "name": "Rakshith",
     "email": "vprajwal714@gmail.com",
-    "password": "$2b$10$rq6sDzzE586e/pXyUxZ1Bu.mVqmpaTiYcfRANgC6KAhtACqTyvVKy",
+    "password": "$2b$10$d9P3HILWpc3CV2DZkv2Ok.J9dBh.rR2gA2PfcXZOfsu2bv5beEjjm",
     "role": "student"
+  },
+  {
+    "id": 8,
+    "name": "Ram",
+    "email": "ram@example.com",
+    "password": "$2b$10$WxtEiyy6DSuyRoOSJdUpYOiS/FWeKdyydsbOQzHd/kOFb3ApbiFjK",
+    "role": "instructor"
+  },
+  {
+    "id": "4d0fe06d-cee3-4cb6-880f-0a2b18e79e66",
+    "name": "Ram",
+    "email": "ram1@example.com",
+    "password": "$2b$10$t27kxu/RluXDjJQ/WW4puuS6GBwgprzXul6ITRQAhVWs1aiReogB2",
+    "role": "instructor"
+  },
+  {
+    "id": "54382f73-2f7e-46a8-b857-8706500d3e84",
+    "name": "John Doe",
+    "email": "john123@example.com",
+    "password": "$2b$10$YCIqqyCoLKR5Yjf.BDSzpOB5Rb8EBMrZYRpyBtLiuHR/slt8URyka",
+    "role": "student"
+  },
+  {
+    "id": "a32e4e6f-2e15-45fe-8e45-e76c9fc99634",
+    "name": "John Doe",
+    "email": "john222@example.com",
+    "password": "$2b$10$kUgQSOdH2oAUMyHHhQYh/e1nRBJ.dcOhitS5P0iOgDAfD6Pn8DgeG",
+    "role": "student",
+    "securityQuestion": "What is your favorite color?",
+    "securityAnswer": "$2b$10$811FyB9x9pcG2msKlJN/suV63a.uarsXbped.ip6l0qYGpczxiNb."
   }
 ]
