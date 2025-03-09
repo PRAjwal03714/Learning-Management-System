@@ -4,6 +4,7 @@ const express = require("express");
 const cors = require("cors");
 require("./src/middlewares/authOAuth"); // Import OAuth Strategies
 
+const pool = require('./src/config/db'); // Import database connection
 
 const app = express();
 
