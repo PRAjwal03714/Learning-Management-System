@@ -7,7 +7,19 @@ const { sendOTP, verifyOTP } = require("../controllers/authController");
 const { requestPasswordReset, resetPassword } = require("../controllers/authController");
 const { verifySecurityQuestion } = require("../controllers/authController");
 
+
+const pool = require("../config/db");
+
 const router = express.Router();
+
+router.get("/test-db", async (req, res) => {
+  try {
+    const result = await pool.query("SELECT NOW() as current_time;");
+    res.json({ message: "Database connection successful!", time: result.rows[0].current_time });
+  } catch (error) {
+    res.status(500).json({ message: "Database connection failed!", error: error.message });
+  }
+});
 
 // 🟢 User Registration (Manual)
 router.post(

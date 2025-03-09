@@ -1,130 +1,135 @@
-const fs = require("fs");
-const path = require("path");
+const pool = require("../config/db"); // PostgreSQL connection
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const { v4: uuidv4 } = require("uuid");
 const { validationResult } = require("express-validator");
 const { sendResetEmail } = require("../utils/emailService");
 
-const usersFilePath = path.join(__dirname, "../users.json");
-
-// Load users from file
-const loadUsers = () => {
-  if (!fs.existsSync(usersFilePath)) return [];
-  return JSON.parse(fs.readFileSync(usersFilePath, "utf-8"));
-};
-
-// Save users to file
-const saveUsers = (users) => {
-  fs.writeFileSync(usersFilePath, JSON.stringify(users, null, 2));
-};
-
 let resetTokens = {}; // Temporary storage for reset tokens
 let otpStore = {}; // Temporary storage for OTPs
 
-// 🟢 User Registration
-// 🟢 User Registration with Security Question
+// 🟢 Register User with Security Question
 exports.register = async (req, res) => {
   const errors = validationResult(req);
-  if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
-
-  const { name, email, password, role, securityQuestion, securityAnswer } = req.body;
-  let users = loadUsers();
-
-  // Check if email already exists
-  if (users.some(user => user.email === email)) {
-    return res.status(400).json({ message: "Email already in use" });
+  if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
   }
 
-  const hashedPassword = await bcrypt.hash(password, 10);
-  const hashedSecurityAnswer = await bcrypt.hash(securityAnswer, 10); // Encrypt security answer
+  const { name, username, email, password, role, securityQuestion, securityAnswer } = req.body;
 
-  const newUser = { 
-    id: uuidv4(), 
-    name, 
-    email, 
-    password: hashedPassword, 
-    role, 
-    securityQuestion, 
-    securityAnswer: hashedSecurityAnswer // Store hashed security answer
-  };
+  if (!username || username.length < 3) {
+      return res.status(400).json({ message: "Username must be at least 3 characters long" });
+  }
 
-  users.push(newUser);
-  saveUsers(users);
+  try {
+      const hashedPassword = await bcrypt.hash(password, 10);
+      const hashedSecurityAnswer = await bcrypt.hash(securityAnswer, 10);
 
-  res.status(201).json({ message: "User registered successfully", user: { id: newUser.id, name, email, role } });
+      const newUser = await pool.query(
+          `INSERT INTO users (id, name, username, email, password, role, security_question, security_answer)
+           VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id, name, username, email, role`,
+          [uuidv4(), name, username, email, hashedPassword, role, securityQuestion, hashedSecurityAnswer]
+      );
+
+      res.status(201).json({ message: "User registered successfully", user: newUser.rows[0] });
+  } catch (error) {
+      console.error("Error registering user:", error);
+      res.status(500).json({ message: "Server error", error: error.message });
+  }
 };
+
 
 // 🟢 User Login
 exports.login = async (req, res) => {
   const { email, password } = req.body;
-  const users = loadUsers();
-  const user = users.find(u => u.email === email);
-  if (!user) return res.status(401).json({ message: "Invalid credentials" });
 
-  const isMatch = await bcrypt.compare(password, user.password);
-  if (!isMatch) return res.status(401).json({ message: "Invalid credentials" });
+  try {
+    const user = await pool.query("SELECT * FROM users WHERE email = $1", [email]);
+    if (user.rows.length === 0) {
+      return res.status(401).json({ message: "Invalid credentials" });
+    }
 
-  const token = jwt.sign({ id: user.id, role: user.role }, process.env.JWT_SECRET, { expiresIn: "1d" });
-  res.json({ message: "Login successful", token });
+    // Compare hashed password
+    const isMatch = await bcrypt.compare(password, user.rows[0].password);
+    if (!isMatch) return res.status(401).json({ message: "Invalid credentials" });
+
+    // Generate JWT Token
+    const token = jwt.sign(
+      { id: user.rows[0].id, role: user.rows[0].role },
+      process.env.JWT_SECRET,
+      { expiresIn: "1d" }
+    );
+
+    res.json({ message: "Login successful", token });
+
+  } catch (error) {
+    console.error("Error logging in:", error);
+    res.status(500).json({ message: "Server error" });
+  }
 };
 
 // 🟢 Request Password Reset (Generates Reset Token)
 exports.requestPasswordReset = async (req, res) => {
   const { email } = req.body;
-  let users = loadUsers();
-  const user = users.find(u => u.email === email);
-  if (!user) return res.status(404).json({ message: "User not found" });
 
-  // Generate a reset token
-  const token = uuidv4();
-  resetTokens[email] = { token, expires: Date.now() + 15 * 60 * 1000 }; // Valid for 15 mins
+  try {
+    const user = await pool.query("SELECT * FROM users WHERE email = $1", [email]);
+    if (user.rows.length === 0) return res.status(404).json({ message: "User not found" });
 
-  // Send reset email
-  const emailResponse = await sendResetEmail(email, token);
-  if (!emailResponse.success) return res.status(500).json({ message: emailResponse.message });
+    // Generate a reset token
+    const token = uuidv4();
+    resetTokens[email] = { token, expires: Date.now() + 15 * 60 * 1000 }; // Valid for 15 mins
 
-  res.json({ message: "Password reset link sent to email." });
+    // Send reset email
+    const emailResponse = await sendResetEmail(email, token);
+    if (!emailResponse.success) return res.status(500).json({ message: emailResponse.message });
+
+    res.json({ message: "Password reset link sent to email." });
+
+  } catch (error) {
+    console.error("Error in password reset request:", error);
+    res.status(500).json({ message: "Server error" });
+  }
 };
 
-// 🟢 Reset Password (Verify Token & Update Password)
 // 🟢 Reset Password Using Reset Token
 exports.resetPassword = async (req, res) => {
   const { email, newPassword, resetToken } = req.body;
-  let users = loadUsers();
 
-  // Check if token is valid
-  if (!resetTokens[email] || resetTokens[email].token !== resetToken || Date.now() > resetTokens[email].expires) {
-    return res.status(400).json({ message: "Invalid or expired reset token" });
+  try {
+    if (!resetTokens[email] || resetTokens[email].token !== resetToken || Date.now() > resetTokens[email].expires) {
+      return res.status(400).json({ message: "Invalid or expired reset token" });
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    // Update password in PostgreSQL
+    await pool.query("UPDATE users SET password = $1 WHERE email = $2", [hashedPassword, email]);
+
+    delete resetTokens[email]; // Remove token after use
+
+    res.json({ message: "Password reset successful. You can now log in with your new password." });
+
+  } catch (error) {
+    console.error("Error resetting password:", error);
+    res.status(500).json({ message: "Server error" });
   }
-
-  // Find user and update password
-  const userIndex = users.findIndex((u) => u.email === email);
-  if (userIndex === -1) return res.status(404).json({ message: "User not found" });
-
-  users[userIndex].password = await bcrypt.hash(newPassword, 10);
-  saveUsers(users);
-  delete resetTokens[email]; // Remove token after use
-
-  res.json({ message: "Password reset successful. You can now log in with your new password." });
 };
-
 
 // 🟢 Send OTP for Password Reset
 exports.sendOTP = async (req, res) => {
   const { email } = req.body;
-  
+
   // Generate 6-digit OTP
   const otp = Math.floor(100000 + Math.random() * 900000);
   otpStore[email] = { otp, expires: Date.now() + 5 * 60 * 1000 }; // Valid for 5 mins
 
-  // Simulate sending OTP (replace with email/SMS logic)
-  console.log(`OTP for ${email}: ${otp}`);
+  console.log(`OTP for ${email}: ${otp}`); // Replace this with actual email/SMS logic
 
   res.json({ message: "OTP sent to email. Check your inbox." });
 };
 
-// 🟢 Verify OTP and Allow Password Reset
+// 🟢 Verify OTP
 exports.verifyOTP = async (req, res) => {
   const { email, otp } = req.body;
 
@@ -135,24 +140,25 @@ exports.verifyOTP = async (req, res) => {
   delete otpStore[email]; // Remove OTP after use
   res.json({ message: "OTP verified. You can now reset your password." });
 };
+
 // 🟢 Verify Security Question Before Resetting Password
-// Modify function to generate a reset token
 exports.verifySecurityQuestion = async (req, res) => {
   const { email, securityAnswer } = req.body;
-  let users = loadUsers();
 
-  // Find user
-  const user = users.find(u => u.email === email);
-  if (!user) return res.status(404).json({ message: "User not found" });
+  try {
+    const user = await pool.query("SELECT * FROM users WHERE email = $1", [email]);
+    if (user.rows.length === 0) return res.status(404).json({ message: "User not found" });
 
-  // Verify security answer
-  const isMatch = await bcrypt.compare(securityAnswer, user.securityAnswer);
-  if (!isMatch) return res.status(400).json({ message: "Incorrect security answer" });
+    const isMatch = await bcrypt.compare(securityAnswer, user.rows[0].security_answer);
+    if (!isMatch) return res.status(400).json({ message: "Incorrect security answer" });
 
-  // Generate reset token (valid for 15 minutes)
-  const resetToken = uuidv4();
-  resetTokens[email] = { token: resetToken, expires: Date.now() + 15 * 60 * 1000 };
+    const resetToken = uuidv4();
+    resetTokens[email] = { token: resetToken, expires: Date.now() + 15 * 60 * 1000 };
 
-  res.json({ message: "Security answer verified. Use this token to reset your password.", resetToken });
+    res.json({ message: "Security answer verified. Use this token to reset your password.", resetToken });
+
+  } catch (error) {
+    console.error("Error verifying security question:", error);
+    res.status(500).json({ message: "Server error" });
+  }
 };
-
