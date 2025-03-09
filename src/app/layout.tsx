@@ -11,12 +11,12 @@ export default function RootLayout({children,}: {children: React.ReactNode;}) {
     <html lang="en">
       <body>
         <div>
-          <div className='flex bg-gradient-to-r from-blue-800 via-purple-500 to-pink-400 absolute w-screen h-18 shadow-2xl'>
+          <div className='flex bg-gradient-to-r from-blue-800 via-purple-500 to-pink-400 absolute w-screen h-18 shadow-2xl border-b-1 border-gray-500'>
             <div className='content-end'>
-              <h1 className='pb-2 pl-2 font-sans text-5xl text-white'>Studymate</h1>
+              <h1 className='pb-4 pl-2 font-sans text-5xl text-white'>Studymate</h1>
             </div>
           </div>
-          <div className='h-screen w-screen bg-gradient-to-b from-white to-blue-200'>
+          <div className='h-screen w-screen bg-gradient-to-b from-blue-200 via-blue-50 to-blue-200'>
             {children}
           </div>
         </div>
