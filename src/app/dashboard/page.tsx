@@ -1,5 +1,8 @@
+import Layout from "@/components/Layout";
+
 export default function dashboard() {
     return (
+        <Layout>
         <div id='wrapper' className='flex flex-col h-full w-full justify-center'>
             
             <div id = 'Class1 Module' className= 'flex flex-col justify-center p-2'>
@@ -9,6 +12,7 @@ export default function dashboard() {
                 </div>
                 <h1 id = 'class-Body' className ='flex items-center border-2 border-black border-solid border-t-0 p-2 max-w-xs h-25'>Class Body here</h1>
             </div>
-
+            
         </div>
+        </Layout>
     )}
