@@ -4,9 +4,65 @@ const jwt = require("jsonwebtoken");
 const { v4: uuidv4 } = require("uuid");
 const { validationResult } = require("express-validator");
 const { sendResetEmail } = require("../utils/emailService");
+const DuoUniversal = require("@duosecurity/duo_universal").Client;
 
 let resetTokens = {}; // Temporary storage for reset tokens
 let otpStore = {}; // Temporary storage for OTPs
+
+console.log("DUO_CLIENT_ID:", process.env.DUO_CLIENT_ID);
+console.log("DUO_CLIENT_SECRET:", process.env.DUO_CLIENT_SECRET);
+console.log("DUO_API_HOSTNAME:", process.env.DUO_API_HOSTNAME);
+console.log("DUO_REDIRECT_URI:", process.env.DUO_REDIRECT_URI);
+
+const duo = new DuoUniversal({
+  clientId: process.env.DUO_CLIENT_ID?.trim(),
+  clientSecret: process.env.DUO_CLIENT_SECRET?.trim(),
+  apiHost: process.env.DUO_API_HOSTNAME?.trim(),
+  redirectUrl: process.env.DUO_REDIRECT_URI?.trim(),
+});
+
+
+exports.startDuoAuth = async (req, res) => {
+  try {
+    const { username } = req.body;
+    if (!username) return res.status(400).json({ message: "Username is required" });
+
+    // Generate Duo Authentication URL
+    const state = jwt.sign({ username }, process.env.JWT_SECRET, { expiresIn: "5m" });
+    const authUrl = duo.createAuthUrl(username, state);
+
+    res.json({ authUrl });
+  } catch (error) {
+    console.error("Error initiating Duo Authentication:", error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
+// Step 2: Handle Duo Callback After Verification
+exports.duoCallback = async (req, res) => {
+  try {
+    const { state, duo_code } = req.query;
+
+    // Verify JWT state token
+    const decoded = jwt.verify(state, process.env.JWT_SECRET);
+    const username = decoded.username;
+
+    // Exchange Duo code for authentication result
+    const duoResponse = await duo.exchangeAuthorizationCodeFor2FAResult(duo_code, username);
+
+    if (!duoResponse.success) {
+      return res.status(401).json({ message: "Duo Authentication Failed" });
+    }
+
+    // Generate final session token for the user
+    const token = jwt.sign({ username, duoVerified: true }, process.env.JWT_SECRET, { expiresIn: "1d" });
+
+    res.json({ message: "Duo Authentication Successful", token });
+  } catch (error) {
+    console.error("Error in Duo Callback:", error);
+    res.status(500).json({ message: "Duo Authentication Error" });
+  }
+};
 
 // 🟢 Register User with Security Question
 exports.register = async (req, res) => {

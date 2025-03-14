@@ -6,6 +6,7 @@ const { check } = require("express-validator");
 const { sendOTP, verifyOTP } = require("../controllers/authController");
 const { requestPasswordReset, resetPassword } = require("../controllers/authController");
 const { verifySecurityQuestion } = require("../controllers/authController");
+const { startDuoAuth, duoCallback } = require("../controllers/authController");
 
 
 const pool = require("../config/db");
@@ -67,6 +68,9 @@ router.get("/facebook/callback", passport.authenticate("facebook", { session: fa
     res.json({ message: "Facebook login successful", token });
   }
 );
+router.post("/duo/auth", startDuoAuth); // Step 1: Initiate Duo Auth
+router.get("/duo/callback", duoCallback); // Step 2: Handle Duo Callback
+
 
 module.exports = router;
 router.post("/verify-security-question", verifySecurityQuestion);
