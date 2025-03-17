@@ -1,11 +1,14 @@
 "use client";
 import Link from "next/link";
 import { useState } from "react";
-import {Home,Settings,Menu,ChevronLeft} from "lucide-react";
+import {Home,Settings,Menu,ChevronLeft,LogOut,User } from "lucide-react";
 
 const sidebarItems = [
+    {name: "Profile", href: "/profile", icon: <User size = {20} />},
     {name: "Dashboard", href:"/dashboard", icon: <Home size = {20}/>},
-    {name: "Settings", href:"/settings",icon: <Settings size={20} />}
+    {name: "Settings", href:"/settings",icon: <Settings size={20} />},
+    {name: "Log out", href:"/login", icon: <LogOut size = {20}/>}
+    
 ];
 
 export default function Sidebar(){
@@ -16,7 +19,7 @@ export default function Sidebar(){
           } flex flex-col`}>
             {/* Open Close sidebar*/}
             <div className="flex items-center justify-between p-3 border-b border-gray-700 relative z-50 h-12 p-4 mt-18">
-            {isOpen && <span className="text-lg font-bold">Menu</span>}
+            {isOpen && <span className="text-lg font-bold">Navigation</span>}
                 <button
                     onClick = {() => setIsOpen(!isOpen)}
                     className="p-2 text-white bg-gray-700 rounded-md hover:bg-gray-600 transition"
@@ -31,7 +34,7 @@ export default function Sidebar(){
                         <li key = {item.name}>
                             <Link 
                                 href = {item.href} 
-                                className={`flex items-center px-3 py-2 rounded-md hover:bg-gray-700 ${
+                                className={`flex items-center px-3 py-3 rounded-md hover:bg-gray-700 ${
                                     isOpen ? "gap-3" : "justify-center"
                                   }`}>
                             {item.icon} {/* Always showing icon */}
