@@ -24,15 +24,19 @@ export default function dashboard() {
             </div>
             
         </div>
+            
         <div>
             {/*Upcoming Section*/}
-            <div id = "Upcoming button" className = "flex flex-col absolute top-20 right-30 max-w-xs p-r-5 border-solid border-2 ">
+            <div id = "Upcoming section" className = "flex flex-col absolute top-20 right-10 max-w-xs h-full min-h-30 max-w-xs w-500 bg-purple-100 border-solid border-2 ">
                 <button 
-                    id = "Upcoming"
+                    id = "Upcoming Button"
                     onClick = {classButton}
-                    className = "bg-purple-200 w-full"
+                    className = "bg-purple-200 w-full "
                 >Upcoming</button>
+                <label id = "Task Test" className = "p-4">Task 1</label>
+                
             </div>
+            
         </div>
         </Layout>
     )}
