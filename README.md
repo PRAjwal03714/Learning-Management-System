@@ -29,17 +29,27 @@ npm install
 
 ### 3️⃣ Set Up Environment Variables
 Create a `.env` file in the root folder and add the following:
-```
-PORT=5000
+```env
+PORT=5001
 JWT_SECRET=supersecretkey
+
 GOOGLE_CLIENT_ID=your-google-client-id
 GOOGLE_CLIENT_SECRET=your-google-client-secret
 FACEBOOK_CLIENT_ID=your-facebook-app-id
 FACEBOOK_CLIENT_SECRET=your-facebook-app-secret
+
 EMAIL_USER=your-email@gmail.com
 EMAIL_PASS=your-email-password
 EMAIL_SERVICE=gmail
 
+# PostgreSQL
+DATABASE_URL=postgresql://studymate:4wBnfzlazVmalsq0PbS7WCQhXiQzwEj1@dpg-cv2g5jdsvqrc738uo3f0-a.oregon-postgres.render.com/studymate_a9es
+
+# Duo Security
+DUO_CLIENT_ID=your-duo-client-id
+DUO_CLIENT_SECRET=your-duo-client-secret
+DUO_API_HOSTNAME=api-xxxxxxx.duosecurity.com
+DUO_REDIRECT_URI=http://localhost:5001/api/auth/duo/callback
 ```
 
 ### 4️⃣ Run the Server
@@ -49,6 +59,14 @@ node server.js
 ✅ Server will start at `http://localhost:5000`
 
 ---
+## 🗄️ PostgreSQL Integration
+
+User data is now saved to PostgreSQL using the connection string:
+
+```env
+DATABASE_URL=postgresql://studymate:4wBnfzlazVmalsq0PbS7WCQhXiQzwEj1@dpg-cv2g5jdsvqrc738uo3f0-a.oregon-postgres.render.com/studymate_a9es
+```
+
 
 ## 📁 Project Structure
 ```
@@ -250,13 +268,44 @@ backend-lms/
 }
 ```
 
+## 🔒 Duo Authentication (2FA)
+
+### 📥 Initiate Duo Authentication
+
+**POST** `/api/auth/duo/auth`
+
+```json
+{
+  "username": "john_doe"
+}
+```
+
+✅ **Response:**
+
+```json
+{
+  "authUrl": "https://api-xxxxx.duosecurity.com/oauth/v1/authorize?...&duo_code=..."
+}
+```
+
+- This URL is opened by the frontend to prompt Duo login.
+- On success, Duo redirects to:
+
+```
+/api/auth/duo/callback?duo_code=xxxx&state=xxxx
+```
+
+### 📤 Handle Duo Callback
+
+**GET** `/api/auth/duo/callback?duo_code=...&state=...`
+
+✅ **Success Response:**
+
+```json
+{
+  "message": "Duo Authentication Successful",
+  "token": "JWT with duoVerified: true"
+}
+```
+
 ---
-
-## 🔜 Next Steps
-- **Implement Duo Authentication for Additional Security**
-  - Require Duo MFA after login.
-  - Users must approve login via **Duo Push, SMS, or phone call**.
-  - Secure accounts from unauthorized access.
-- **Store Password Reset Tokens in Database**
-- **Enhance API Security with Rate Limiting & Logging**
-
