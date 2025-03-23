@@ -41,28 +41,34 @@ exports.startDuoAuth = async (req, res) => {
 // Step 2: Handle Duo Callback After Verification
 exports.duoCallback = async (req, res) => {
   try {
-    const { state, duo_code } = req.query;
+    const { duo_code, state } = req.query;
+    if (!duo_code || !state) {
+      return res.status(400).json({ message: "Missing duo_code or state" });
+    }
 
-    // Verify JWT state token
     const decoded = jwt.verify(state, process.env.JWT_SECRET);
     const username = decoded.username;
 
-    // Exchange Duo code for authentication result
     const duoResponse = await duo.exchangeAuthorizationCodeFor2FAResult(duo_code, username);
+    console.log("Duo Response:", duoResponse);
 
-    if (!duoResponse.success) {
+    if (duoResponse.auth_result?.result !== "allow") {
       return res.status(401).json({ message: "Duo Authentication Failed" });
     }
 
-    // Generate final session token for the user
-    const token = jwt.sign({ username, duoVerified: true }, process.env.JWT_SECRET, { expiresIn: "1d" });
+    const token = jwt.sign(
+      { username, duoVerified: true },
+      process.env.JWT_SECRET,
+      { expiresIn: "1d" }
+    );
 
-    res.json({ message: "Duo Authentication Successful", token });
-  } catch (error) {
-    console.error("Error in Duo Callback:", error);
-    res.status(500).json({ message: "Duo Authentication Error" });
+    res.status(200).json({ message: "Duo Authentication Successful", token });
+  } catch (err) {
+    console.error("Duo Callback Error:", err);
+    res.status(500).json({ message: "Internal Server Error" });
   }
 };
+
 
 // 🟢 Register User with Security Question
 exports.register = async (req, res) => {
