@@ -11,6 +11,7 @@ This is the backend for the Learning Management System (LMS), built using **Node
 - Temporary Data Storage in JSON File (Replaceable with PostgreSQL)
 - Express API Endpoints for Authentication
 - **Password Reset & Recovery** (Security Questions, Reset Link, OTP via Email/Text/Duo)
+- **Instructor Course Management** (Create and View Courses)
 
 ---
 
@@ -66,7 +67,6 @@ User data is now saved to PostgreSQL using the connection string:
 ```env
 DATABASE_URL=postgresql://studymate:4wBnfzlazVmalsq0PbS7WCQhXiQzwEj1@dpg-cv2g5jdsvqrc738uo3f0-a.oregon-postgres.render.com/studymate_a9es
 ```
-
 
 ## 📁 Project Structure
 ```
@@ -309,3 +309,41 @@ backend-lms/
 ```
 
 ---
+
+## 📚 Instructor Course Management
+
+### 🆕 Create a Course
+**POST** `/api/courses/create-course`
+- **Headers:** `{ Authorization: Bearer <INSTRUCTOR_JWT> }`
+```json
+{
+  "department": "CS",
+  "number": 565,
+  "name": "Software Engineering II",
+  "term": "Spring 2025",
+  "start_date": "2025-03-01",
+  "end_date": "2025-05-30",
+  "credits": 3.0,
+  "is_published": true,
+  "is_active": true
+}
+```
+✅ **Response:**
+```json
+{
+  "message": "Course created successfully",
+  "course": { "id": "uuid", "name": "Software Engineering II", ... }
+}
+```
+
+### 📄 View Instructor’s Courses
+**GET** `/api/courses/my-courses`
+- **Headers:** `{ Authorization: Bearer <INSTRUCTOR_JWT> }`
+✅ **Response:**
+```json
+{
+  "message": "Courses fetched successfully",
+  "courses": [ { "id": "uuid", "name": "Software Engineering II" }, ... ]
+}
+```
+
