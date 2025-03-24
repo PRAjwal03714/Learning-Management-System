@@ -9,6 +9,7 @@ const pool = require('./src/config/db'); // Import database connection
 const app = express();
 
 const courseRoutes = require("./src/routes/courseRoutes");
+const announcementRoutes = require("./src/routes/announcementRoutes");
 
 // Middleware (to parse JSON and enable CORS)
 app.use(cors());
@@ -22,6 +23,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use("/api/auth", require("./src/routes/authRoutes"));
 app.use("/api/protected", require("./src/routes/protectedRoutes")); // Ensure this line is present
 app.use("/api/courses", courseRoutes);
+app.use("/api/announcements", announcementRoutes);
 
 
 // Start the server

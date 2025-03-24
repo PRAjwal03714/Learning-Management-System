@@ -347,3 +347,51 @@ backend-lms/
 }
 ```
 
+### 📢 Announcements Management
+
+Instructors can post announcements for specific courses. Students (once enrolled logic is added) will be able to view announcements for their courses.
+
+#### 🆕 Post an Announcement  
+**POST** `/api/announcements/create`  
+- **Headers:** `{ Authorization: Bearer <INSTRUCTOR_JWT> }`  
+```json
+{
+  "course_id": "actual-course-uuid",
+  "title": "Reminder: Midterm on Friday",
+  "content": "The midterm will be held on Friday at 10AM in Room 301."
+}
+```
+
+✅ **Response:**
+```json
+{
+  "message": "Announcement posted successfully",
+  "announcement": {
+    "id": "uuid",
+    "course_id": "uuid",
+    "title": "Reminder: Midterm on Friday",
+    "content": "The midterm will be held on Friday at 10AM in Room 301.",
+    "instructor_id": "uuid"
+  }
+}
+```
+
+#### 📥 View Announcements for a Course  
+**GET** `/api/announcements/:courseId`  
+- **Headers:** `{ Authorization: Bearer <JWT> }`
+
+✅ **Response:**
+```json
+[
+  {
+    "id": "uuid",
+    "course_id": "uuid",
+    "instructor_id": "uuid",
+    "title": "Reminder: Midterm on Friday",
+    "content": "The midterm will be held on Friday at 10AM in Room 301."
+  },
+  ...
+]
+```
+
+---
