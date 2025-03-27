@@ -1,23 +1,96 @@
-export default function signup() {
-    return (
-        <div id='wrapper' className='flex flex-col h-full w-full justify-center'>
-            <div id='popup' className='flex flex-col shadow-xl shadow-gray-400 bg-blue-50 border-1 h-125 w-85 ml-auto mr-auto' >
-                <h1 id='signUpText' className='text-3xl mt-8 mr-auto ml-auto'>Sign Up</h1>
-                <input id='email' placeholder='Email' type="email" className='border-1 rounded-sm h-8.5 mt-8 mb-3 ml-auto mr-auto w-9/10 bg-gray-100 shadow-gray-300 shadow-md hover:bg-gray-200 active:bg-gray-100'></input>
-                <input id='username' placeholder='Username' type="text" className='border-1 rounded-sm h-8.5 mb-3 ml-auto mr-auto w-9/10 bg-gray-100 shadow-gray-300 shadow-md hover:bg-gray-200 active:bg-gray-100'></input>
-                <input id='password' placeholder='Password' type="password" className='border-1 rounded-sm h-8.5 mb-3 ml-auto mr-auto w-9/10 bg-gray-100 shadow-gray-300 shadow-md hover:bg-gray-200 active:bg-gray-100'></input>
-                <input id='confirmPassword' placeholder='Confirm Password' type="password" className='border-1 rounded-sm h-8.5 mb-3 ml-auto mr-auto w-9/10 bg-gray-100 shadow-gray-300 shadow-md hover:bg-gray-200 active:bg-gray-100'></input>
-                <select id='securityQuestion' defaultValue={'DEFAULT'} className=' text-gray-500 w-9/10 mr-auto mb-3 ml-auto border-1 bg-gray-100 h-8.5 rounded-sm shadow-gray-300 shadow-md hover:bg-gray-200'>
-                    <option value='DEFAULT' disabled hidden>Pick a securityQuestion</option>
-                    <option value='Q1'>What color is your favorite? </option>
-                    <option value='Q2'>What was the name of the town you grew up in?</option>
-                    <option value='Q3'>What was the name of your first pet?</option>
-                    <option value='Q4'>In what town did you meet your partner?</option>
-                </select>  
-                <input id='securityAnswer' placeholder='Security Question Answer' type="text" className='border-1 rounded-sm h-8.5 mb-7 ml-auto mr-auto w-9/10 bg-gray-100 shadow-gray-300 shadow-md hover:bg-gray-200 active:bg-gray-100'></input>             
-                <button id ='createAccount' className='border-2 w-3/5 h-10 ml-auto mr-auto rounded-sm bg-gray-100 shadow-gray-300 shadow-md hover:bg-blue-50 active:bg-blue-100 active:shadow-none'>Create Account</button>
-                <span id='toSignIn' className='text-black mt-5 mr-auto ml-auto'>Already have an account? Sign in <a href='/login' className='text-blue-500 mt-8 mr-auto ml-auto hover:underline active:underline active:text-blue-300'>here</a></span>
-            </div>
+// src/app/signup/page.tsx
+'use client';
+
+export default function Signup() {
+  return (
+    <div className="w-full max-w-md bg-white border border-gray-300 rounded-md p-8 shadow-md">
+      <h1 className="text-2xl font-bold text-center mb-6">Sign Up</h1>
+
+      <form className="space-y-4">
+        <div>
+          <label htmlFor="email" className="block font-semibold text-gray-700 mb-1">
+            Email
+          </label>
+          <input
+            type="email"
+            id="email"
+            className="w-full px-3 py-2 border border-gray-300 rounded-md"
+          />
         </div>
-    )
+
+        <div>
+          <label htmlFor="username" className="block font-semibold text-gray-700 mb-1">
+            Username
+          </label>
+          <input
+            type="text"
+            id="username"
+            className="w-full px-3 py-2 border border-gray-300 rounded-md"
+          />
+        </div>
+
+        <div>
+          <label htmlFor="password" className="block font-semibold text-gray-700 mb-1">
+            Password
+          </label>
+          <input
+            type="password"
+            id="password"
+            className="w-full px-3 py-2 border border-gray-300 rounded-md"
+          />
+        </div>
+
+        <div>
+          <label htmlFor="confirmPassword" className="block font-semibold text-gray-700 mb-1">
+            Confirm Password
+          </label>
+          <input
+            type="password"
+            id="confirmPassword"
+            className="w-full px-3 py-2 border border-gray-300 rounded-md"
+          />
+        </div>
+
+        <div>
+          <label htmlFor="securityQuestion" className="block font-semibold text-gray-700 mb-1">
+            Security Question
+          </label>
+          <select
+            id="securityQuestion"
+            defaultValue="DEFAULT"
+            className="w-full px-3 py-2 border border-gray-300 rounded-md text-gray-700"
+          >
+            <option value="DEFAULT" disabled hidden>Select a security question</option>
+            <option value="Q1">What color is your favorite?</option>
+            <option value="Q2">What was the name of the town you grew up in?</option>
+            <option value="Q3">What was the name of your first pet?</option>
+            <option value="Q4">In what town did you meet your partner?</option>
+          </select>
+        </div>
+
+        <div>
+          <label htmlFor="securityAnswer" className="block font-semibold text-gray-700 mb-1">
+            Security Answer
+          </label>
+          <input
+            type="text"
+            id="securityAnswer"
+            className="w-full px-3 py-2 border border-gray-300 rounded-md"
+          />
+        </div>
+
+        <button
+          type="submit"
+          className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition cursor-pointer"
+        >
+          Create Account
+        </button>
+      </form>
+
+      <p className="mt-4 text-center text-sm text-gray-600">
+        Already have an account?{' '}
+        <a href="/login" className="text-blue-600 hover:underline">Sign in</a>
+      </p>
+    </div>
+  );
 }

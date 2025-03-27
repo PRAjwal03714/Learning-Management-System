@@ -1,7 +1,5 @@
-export default function home() {
-    return (
-        <div>
-            
-        </div>
-    )
+import { redirect } from 'next/navigation';
+
+export default function Home() {
+  redirect('/signup');
 }
