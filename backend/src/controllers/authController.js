@@ -7,52 +7,100 @@ const { sendResetEmail } = require("../utils/emailService");
 const DuoUniversal = require("@duosecurity/duo_universal").Client;
 
 let resetTokens = {}; // Temporary storage for reset tokens
-let otpStore = {}; // Temporary storage for OTPs
 
 console.log("DUO_CLIENT_ID:", process.env.DUO_CLIENT_ID);
 console.log("DUO_CLIENT_SECRET:", process.env.DUO_CLIENT_SECRET);
 console.log("DUO_API_HOSTNAME:", process.env.DUO_API_HOSTNAME);
 console.log("DUO_REDIRECT_URI:", process.env.DUO_REDIRECT_URI);
 
+
 const duo = new DuoUniversal({
-  clientId: process.env.DUO_CLIENT_ID?.trim(),
-  clientSecret: process.env.DUO_CLIENT_SECRET?.trim(),
-  apiHost: process.env.DUO_API_HOSTNAME?.trim(),
-  redirectUrl: process.env.DUO_REDIRECT_URI?.trim(),
+  clientId: process.env.DUO_CLIENT_ID,
+  clientSecret: process.env.DUO_CLIENT_SECRET,
+  apiHost: process.env.DUO_API_HOSTNAME,
+  redirectUrl: process.env.DUO_REDIRECT_URI,
 });
+// backend/controllers/authController.js
 
+const nodemailer = require("nodemailer");
 
-exports.startDuoAuth = async (req, res) => {
+const otpStore = {}; // in-memory storage
+
+exports.sendOtpByEmail = async (req, res) => {
+  const { email } = req.body;
+
+  if (!email) return res.status(400).json({ message: "Email is required" });
+
+  const otp = Math.floor(100000 + Math.random() * 900000);
+  otpStore[email] = { otp, expires: Date.now() + 5 * 60 * 1000 };
+
+  // Inline transporter setup
+  const transporter = nodemailer.createTransport({
+    service: process.env.EMAIL_SERVICE,
+    auth: {
+      user: process.env.EMAIL_USER,
+      pass: process.env.EMAIL_PASS
+    }
+  });
+
+  const mailOptions = {
+    from: process.env.EMAIL_USER,
+    to: email,
+    subject: "Your OTP Code",
+    html: `<p>Your OTP code is: <strong>${otp}</strong></p>
+           <p>This code is valid for 5 minutes.</p>`
+  };
+
   try {
-    const { username } = req.body;
-    if (!username) return res.status(400).json({ message: "Username is required" });
-
-    // Generate Duo Authentication URL
-    const state = jwt.sign({ username }, process.env.JWT_SECRET, { expiresIn: "5m" });
-    const authUrl = duo.createAuthUrl(username, state);
-
-    res.json({ authUrl });
+    const info = await transporter.sendMail(mailOptions);
+    console.log("✅ OTP Email sent successfully:", info.response);
+    return res.json({ message: "OTP sent to email." });
   } catch (error) {
-    console.error("Error initiating Duo Authentication:", error);
-    res.status(500).json({ message: "Internal Server Error" });
+    console.error("❌ Error sending OTP email:", error);
+    return res.status(500).json({ message: "Failed to send OTP email." });
   }
 };
 
-// Step 2: Handle Duo Callback After Verification
-exports.duoCallback = async (req, res) => {
-  try {
-    const { duo_code, state } = req.query;
-    if (!duo_code || !state) {
-      return res.status(400).json({ message: "Missing duo_code or state" });
-    }
+exports.verifyOtpByEmail = (req, res) => {
+  const { email, otp } = req.body;
 
+  if (
+    !otpStore[email] ||
+    otpStore[email].otp !== parseInt(otp) ||
+    Date.now() > otpStore[email].expires
+  ) {
+    return res.status(400).json({ message: "Invalid or expired OTP" });
+  }
+
+  delete otpStore[email];
+  return res.json({ message: "OTP verified successfully" });
+};
+
+
+
+
+// Initiate Duo
+
+
+exports.startDuoAuth = async (req, res) => {
+  const { username } = req.body;
+  if (!username) return res.status(400).json({ message: "Username required" });
+
+  const state = jwt.sign({ username }, process.env.JWT_SECRET, { expiresIn: "5m" });
+  const authUrl = duo.createAuthUrl(username, state);
+  res.json({ authUrl });
+};
+
+exports.handleDuoCallback = async (req, res) => {
+  const { duo_code, state } = req.query;
+  if (!duo_code || !state) return res.status(400).json({ message: "Missing Duo code or state" });
+
+  try {
     const decoded = jwt.verify(state, process.env.JWT_SECRET);
     const username = decoded.username;
 
-    const duoResponse = await duo.exchangeAuthorizationCodeFor2FAResult(duo_code, username);
-    console.log("Duo Response:", duoResponse);
-
-    if (duoResponse.auth_result?.result !== "allow") {
+    const result = await duo.exchangeAuthorizationCodeFor2FAResult(duo_code, username);
+    if (result?.auth_result?.result !== "allow") {
       return res.status(401).json({ message: "Duo Authentication Failed" });
     }
 
@@ -61,17 +109,54 @@ exports.duoCallback = async (req, res) => {
       process.env.JWT_SECRET,
       { expiresIn: "1d" }
     );
-
-    res.status(200).json({ message: "Duo Authentication Successful", token });
+    
+    // 👇 redirect to frontend with token as query param
+    res.redirect(`http://localhost:3000/duo-auth?token=${token}`);
   } catch (err) {
     console.error("Duo Callback Error:", err);
-    res.status(500).json({ message: "Internal Server Error" });
+    res.status(500).json({ message: "Duo verification failed" });
   }
 };
 
+exports.adminLogin = async (req, res) => {
+  const { email, password } = req.body;
+
+  try {
+    const user = await pool.query("SELECT * FROM users WHERE email = $1", [email]);
+
+    if (user.rows.length === 0) {
+      return res.status(401).json({ message: "Admin not found" });
+    }
+
+    const admin = user.rows[0];
+
+    if (admin.role !== "admin") {
+      return res.status(403).json({ message: "Access denied: Not an admin" });
+    }
+
+    const isMatch = await bcrypt.compare(password, admin.password);
+    if (!isMatch) {
+      return res.status(401).json({ message: "Invalid credentials" });
+    }
+
+    const token = jwt.sign(
+      { id: admin.id, role: admin.role },
+      process.env.JWT_SECRET,
+      { expiresIn: "1d" }
+    );
+
+    res.json({ message: "Admin login successful", token });
+
+  } catch (err) {
+    console.error("Admin login error:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+};
 
 // 🟢 Register User with Security Question
 exports.register = async (req, res) => {
+  console.log('📩 Received signup data:', req.body);
+
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
@@ -106,18 +191,25 @@ exports.login = async (req, res) => {
   const { email, password } = req.body;
 
   try {
-    const user = await pool.query("SELECT * FROM users WHERE email = $1", [email]);
-    if (user.rows.length === 0) {
+    const userResult = await pool.query("SELECT * FROM users WHERE email = $1", [email]);
+    const user = userResult.rows[0];
+
+    if (!user) {
       return res.status(401).json({ message: "Invalid credentials" });
     }
 
-    // Compare hashed password
-    const isMatch = await bcrypt.compare(password, user.rows[0].password);
+    const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) return res.status(401).json({ message: "Invalid credentials" });
 
-    // Generate JWT Token
+    // 👇 Check if Duo is required (maybe based on role, email, etc.)
+    const requiresDuo = true; // ← or your own logic here
+
+    if (requiresDuo) {
+      return res.status(200).json({ duoRequired: true });
+    }
+
     const token = jwt.sign(
-      { id: user.rows[0].id, role: user.rows[0].role },
+      { id: user.id, role: user.role },
       process.env.JWT_SECRET,
       { expiresIn: "1d" }
     );
@@ -125,10 +217,11 @@ exports.login = async (req, res) => {
     res.json({ message: "Login successful", token });
 
   } catch (error) {
-    console.error("Error logging in:", error);
+    console.error("Login error:", error);
     res.status(500).json({ message: "Server error" });
   }
 };
+
 
 // 🟢 Request Password Reset (Generates Reset Token)
 exports.requestPasswordReset = async (req, res) => {
@@ -179,29 +272,6 @@ exports.resetPassword = async (req, res) => {
 };
 
 // 🟢 Send OTP for Password Reset
-exports.sendOTP = async (req, res) => {
-  const { email } = req.body;
-
-  // Generate 6-digit OTP
-  const otp = Math.floor(100000 + Math.random() * 900000);
-  otpStore[email] = { otp, expires: Date.now() + 5 * 60 * 1000 }; // Valid for 5 mins
-
-  console.log(`OTP for ${email}: ${otp}`); // Replace this with actual email/SMS logic
-
-  res.json({ message: "OTP sent to email. Check your inbox." });
-};
-
-// 🟢 Verify OTP
-exports.verifyOTP = async (req, res) => {
-  const { email, otp } = req.body;
-
-  if (!otpStore[email] || otpStore[email].otp !== parseInt(otp) || Date.now() > otpStore[email].expires) {
-    return res.status(400).json({ message: "Invalid or expired OTP" });
-  }
-
-  delete otpStore[email]; // Remove OTP after use
-  res.json({ message: "OTP verified. You can now reset your password." });
-};
 
 // 🟢 Verify Security Question Before Resetting Password
 exports.verifySecurityQuestion = async (req, res) => {
@@ -224,3 +294,36 @@ exports.verifySecurityQuestion = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
+exports.checkUserExists = async (req, res) => {
+  const { email } = req.body;
+
+  try {
+    const result = await pool.query("SELECT * FROM users WHERE email = $1", [email]);
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ exists: false, message: "User not found" });
+    }
+
+    return res.status(200).json({ exists: true, message: "User found" });
+  } catch (error) {
+    console.error("Database error:", error);
+    return res.status(500).json({ exists: false, message: "Internal server error" });
+  }
+};
+
+
+// controllers/authController.js
+exports.resetPasswordWithOtp = async (req, res) => {
+  const { email, newPassword } = req.body;
+
+  try {
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    await pool.query("UPDATE users SET password = $1 WHERE email = $2", [hashedPassword, email]);
+
+    res.json({ message: "Password reset successful via OTP." });
+  } catch (error) {
+    console.error("Error resetting password via OTP:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+

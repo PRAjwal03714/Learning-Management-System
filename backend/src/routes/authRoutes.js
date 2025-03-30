@@ -3,10 +3,14 @@ const passport = require("passport");
 const jwt = require("jsonwebtoken");
 const { register, login } = require("../controllers/authController");
 const { check } = require("express-validator");
-const { sendOTP, verifyOTP } = require("../controllers/authController");
 const { requestPasswordReset, resetPassword } = require("../controllers/authController");
 const { verifySecurityQuestion } = require("../controllers/authController");
-const { startDuoAuth, duoCallback } = require("../controllers/authController");
+const {  adminLogin, checkUserExists, resetPasswordWithOtp} = require("../controllers/authController");
+
+const { sendOtpByEmail, verifyOtpByEmail } = require("../controllers/authController");
+
+const { startDuoAuth, handleDuoCallback } = require("../controllers/authController");
+
 
 
 const pool = require("../config/db");
@@ -21,6 +25,10 @@ router.get("/test-db", async (req, res) => {
     res.status(500).json({ message: "Database connection failed!", error: error.message });
   }
 });
+router.post("/send-otp-email", sendOtpByEmail);
+router.post("/verify-otp-email", verifyOtpByEmail);
+router.post("/duo/auth", startDuoAuth);
+router.get("/duo/callback", handleDuoCallback);
 
 // 🟢 User Registration (Manual)
 router.post(
@@ -33,44 +41,63 @@ router.post(
   ],
   register
 );
+// backend/routes/authRoutes.js
+
+router.post("/admin-login", adminLogin);
 
 // 🟢 Request Password Reset
 router.post("/request-password-reset", requestPasswordReset);
 // 🟢 Reset Password
 router.post("/reset-password/", resetPassword);
 // 🟢 Send OTP for Reset
-router.post("/send-otp", sendOTP);
 
-// 🟢 Verify OTP
-router.post("/verify-otp", verifyOTP);
 
 // 🟢 User Login (Manual)
 router.post("/login", login);
 
 // 🟢 Google Login Route
-router.get("/google", passport.authenticate("google", { scope: ["profile", "email"] }));
+router.get('/google', passport.authenticate('google', {
+  scope: ['profile', 'email'],
+  session: false,
+  prompt: 'consent select_account'
 
-// 🟢 Google OAuth Callback
-router.get("/google/callback", passport.authenticate("google", { session: false }),
-  (req, res) => {
-    const token = jwt.sign({ id: req.user.id, name: req.user.name, provider: req.user.provider }, process.env.JWT_SECRET, { expiresIn: "1d" });
-    res.json({ message: "Google login successful", token });
-  }
-);
+}));
 
-// 🟢 Facebook Login Route
-router.get("/facebook", passport.authenticate("facebook"));
+router.get('/google/callback', passport.authenticate('google', {
+  session: false,
+  failureRedirect: '/login' // fallback on failure
+}), (req, res) => {
+  const token = jwt.sign(
+    { id: req.user.id, name: req.user.name, provider: req.user.provider },
+    process.env.JWT_SECRET,
+    { expiresIn: '1d' }
+  );
 
-// 🟢 Facebook OAuth Callback
-router.get("/facebook/callback", passport.authenticate("facebook", { session: false }),
-  (req, res) => {
-    const token = jwt.sign({ id: req.user.id, name: req.user.name, provider: req.user.provider }, process.env.JWT_SECRET, { expiresIn: "1d" });
-    res.json({ message: "Facebook login successful", token });
-  }
-);
-router.post("/duo/auth", startDuoAuth); // Step 1: Initiate Duo Auth
-router.get("/duo/callback", duoCallback); // Step 2: Handle Duo Callback
+  // ✅ REDIRECT instead of res.json
+  res.redirect(`http://localhost:3000/oauth-callback?token=${token}`);
+});
 
+router.get('/facebook', passport.authenticate('facebook', { session: false ,   prompt: 'consent select_account'
+}));
+
+router.get('/facebook/callback', passport.authenticate('facebook', {
+  session: false,
+  failureRedirect: '/login'
+}), (req, res) => {
+  const token = jwt.sign(
+    { id: req.user.id, name: req.user.name, provider: req.user.provider },
+    process.env.JWT_SECRET,
+    { expiresIn: '1d' }
+  );
+
+  res.redirect(`http://localhost:3000/oauth-callback?token=${token}`);
+});
+
+
+router.post('/check-user', checkUserExists);
+
+// routes/authRoutes.js
+router.post("/reset-password-otp", resetPasswordWithOtp);
+router.post("/verify-security-question", verifySecurityQuestion);
 
 module.exports = router;
-router.post("/verify-security-question", verifySecurityQuestion);
