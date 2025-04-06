@@ -33,9 +33,11 @@ export default function ResetPage() {
       if (option === 'forgot') {
         router.push(`/reset/forgot?email=${encodeURIComponent(email)}`);
       } else {
-        router.push('/login');
+        router.push(`/reset/known?email=${encodeURIComponent(email)}`);
       }
     } catch (err) {
+      console.error(err);
+
       setErrorMsg('Server error. Please try again later.');
     }
   };
@@ -43,7 +45,7 @@ export default function ResetPage() {
   return (
     <div className="flex flex-col items-center justify-center min-h-[90vh] px-4">
       <div className="max-w-md w-full bg-white shadow-xl border border-gray-300 rounded-md p-8">
-        <h1 className="text-3xl font-bold text-center text-gray-800 mb-6">Passphrase Reset</h1>
+        <h1 className="text-3xl font-bold text-center text-gray-800 mb-6">Password Reset</h1>
 
         <label htmlFor="email" className="block text-lg font-semibold text-gray-800 mb-2">
           Username
@@ -66,14 +68,14 @@ export default function ResetPage() {
           onClick={() => handleOptionClick('forgot')}
           className="w-full mb-4 py-3 text-lg font-bold text-red-800 border-2 border-red-800 rounded-md hover:bg-red-50 cursor-pointer"
         >
-          I don&apos;t know my passphrase
+          I don&apos;t know my password
         </button>
 
         <button
           onClick={() => handleOptionClick('login')}
           className="w-full py-3 text-lg font-bold text-red-800 border-2 border-red-800 rounded-md hover:bg-red-50 cursor-pointer"
         >
-          I know my passphrase
+          I know my password
         </button>
       </div>
     </div>

@@ -6,12 +6,12 @@ const { validationResult } = require("express-validator");
 const { sendResetEmail } = require("../utils/emailService");
 const DuoUniversal = require("@duosecurity/duo_universal").Client;
 
-let resetTokens = {}; // Temporary storage for reset tokens
+// let resetTokens = {}; // Temporary storage for reset tokens
 
-console.log("DUO_CLIENT_ID:", process.env.DUO_CLIENT_ID);
-console.log("DUO_CLIENT_SECRET:", process.env.DUO_CLIENT_SECRET);
-console.log("DUO_API_HOSTNAME:", process.env.DUO_API_HOSTNAME);
-console.log("DUO_REDIRECT_URI:", process.env.DUO_REDIRECT_URI);
+// console.log("DUO_CLIENT_ID:", process.env.DUO_CLIENT_ID);
+// console.log("DUO_CLIENT_SECRET:", process.env.DUO_CLIENT_SECRET);
+// console.log("DUO_API_HOSTNAME:", process.env.DUO_API_HOSTNAME);
+// console.log("DUO_REDIRECT_URI:", process.env.DUO_REDIRECT_URI);
 
 
 const duo = new DuoUniversal({
@@ -25,6 +25,7 @@ const duo = new DuoUniversal({
 const nodemailer = require("nodemailer");
 
 const otpStore = {}; // in-memory storage
+
 
 exports.sendOtpByEmail = async (req, res) => {
   const { email } = req.body;
@@ -117,6 +118,29 @@ exports.handleDuoCallback = async (req, res) => {
     res.status(500).json({ message: "Duo verification failed" });
   }
 };
+exports.changePassword = async (req, res) => {
+  const { email, currentPassword, newPassword } = req.body;
+
+  try {
+    const user = await pool.query("SELECT * FROM users WHERE email = $1", [email]);
+    if (user.rows.length === 0) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const isMatch = await bcrypt.compare(currentPassword, user.rows[0].password);
+    if (!isMatch) {
+      return res.status(400).json({ message: "Incorrect current password" });
+    }
+
+    const hashed = await bcrypt.hash(newPassword, 10);
+    await pool.query("UPDATE users SET password = $1 WHERE email = $2", [hashed, email]);
+
+    res.json({ message: "Password updated successfully." });
+  } catch (err) {
+    console.error("Error changing password:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+};
 
 exports.adminLogin = async (req, res) => {
   const { email, password } = req.body;
@@ -155,35 +179,47 @@ exports.adminLogin = async (req, res) => {
 
 // 🟢 Register User with Security Question
 exports.register = async (req, res) => {
-  console.log('📩 Received signup data:', req.body);
-
   const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
-  }
+  if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
 
   const { name, username, email, password, role, securityQuestion, securityAnswer } = req.body;
 
-  if (!username || username.length < 3) {
-      return res.status(400).json({ message: "Username must be at least 3 characters long" });
-  }
-
   try {
-      const hashedPassword = await bcrypt.hash(password, 10);
-      const hashedSecurityAnswer = await bcrypt.hash(securityAnswer, 10);
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const hashedAnswer = await bcrypt.hash(securityAnswer, 10);
+    const userId = uuidv4();
 
-      const newUser = await pool.query(
-          `INSERT INTO users (id, name, username, email, password, role, security_question, security_answer)
-           VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id, name, username, email, role`,
-          [uuidv4(), name, username, email, hashedPassword, role, securityQuestion, hashedSecurityAnswer]
+    // Insert into users table
+    const newUser = await pool.query(
+      `INSERT INTO users (id, name, username, email, password, role, security_question, security_answer)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+       RETURNING id, name, username, email, role`,
+      [userId, name, username, email, hashedPassword, role, securityQuestion, hashedAnswer]
+    );
+
+    // If instructor, add to instructors table
+    if (role === 'instructor') {
+      const instructorId = `INST-${Math.floor(100000 + Math.random() * 900000)}`; // Generate instructor ID
+      await pool.query(
+        `INSERT INTO instructors (user_id, instructor_id, is_approved)
+         VALUES ($1, $2, $3)`,
+        [userId, instructorId, false]
       );
+    }
 
-      res.status(201).json({ message: "User registered successfully", user: newUser.rows[0] });
+    res.status(201).json({ message: "User registered successfully", user: newUser.rows[0] });
   } catch (error) {
-      console.error("Error registering user:", error);
-      res.status(500).json({ message: "Server error", error: error.message });
+    if (error.code === '23505') {
+      let msg = "Username or email already exists";
+      if (error.detail.includes("username")) msg = "Username already taken";
+      else if (error.detail.includes("email")) msg = "Email already registered";
+      return res.status(400).json({ message: msg });
+    }
+    console.error("Error registering user:", error);
+    res.status(500).json({ message: "Server error", error: error.message });
   }
 };
+
 
 
 // 🟢 User Login
@@ -201,9 +237,21 @@ exports.login = async (req, res) => {
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) return res.status(401).json({ message: "Invalid credentials" });
 
-    // 👇 Check if Duo is required (maybe based on role, email, etc.)
-    const requiresDuo = true; // ← or your own logic here
+    // 🔐 If the user is an instructor, check approval status
+    if (user.role === 'instructor') {
+      const instructorResult = await pool.query(
+        "SELECT is_approved FROM instructors WHERE user_id = $1",
+        [user.id]
+      );
 
+      const instructor = instructorResult.rows[0];
+      if (!instructor || !instructor.is_approved) {
+        return res.status(403).json({ message: "Instructor account not approved by admin yet." });
+      }
+    }
+
+    // 👇 If 2FA/Duo is required (customize this condition)
+    const requiresDuo = true;
     if (requiresDuo) {
       return res.status(200).json({ duoRequired: true });
     }
@@ -218,6 +266,53 @@ exports.login = async (req, res) => {
 
   } catch (error) {
     console.error("Login error:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+exports.instructorLogin = async (req, res) => {
+  const { instructorId, password } = req.body;
+
+  if (!instructorId || !password) {
+    return res.status(400).json({ message: "Instructor ID and password are required." });
+  }
+
+  try {
+    // Get instructor by instructor_id
+    const instructorRes = await pool.query(
+      `SELECT i.*, u.password, u.role FROM instructors i
+       JOIN users u ON u.id = i.user_id
+       WHERE i.instructor_id = $1`,
+      [instructorId]
+    );
+
+    if (instructorRes.rows.length === 0) {
+      return res.status(404).json({ message: "Instructor not found." });
+    }
+
+    const instructor = instructorRes.rows[0];
+
+    // Check if approved
+    if (!instructor.is_approved) {
+      return res.status(403).json({ message: "Approval pending by admin." });
+    }
+
+    // Validate password
+    const isMatch = await bcrypt.compare(password, instructor.password);
+    if (!isMatch) {
+      return res.status(401).json({ message: "Invalid password." });
+    }
+
+    // Generate JWT
+    const token = jwt.sign(
+      { id: instructor.user_id, role: instructor.role, instructorId },
+      process.env.JWT_SECRET,
+      { expiresIn: "1d" }
+    );
+
+    res.json({ message: "Instructor login successful", token });
+  } catch (err) {
+    console.error("Instructor login error:", err);
     res.status(500).json({ message: "Server error" });
   }
 };

@@ -20,7 +20,59 @@ exports.getInstructorCourses = async (req, res) => {
     }
   };
   
+  // Add to your courseController.js
+exports.getCourseById = async (req, res) => {
+  const courseId = req.params.id;
+  try {
+    const result = await pool.query('SELECT * FROM courses WHERE id = $1', [courseId]);
+    if (result.rows.length === 0) {
+      return res.status(404).json({ message: 'Course not found' });
+    }
+    res.status(200).json({ course: result.rows[0] });
+  } catch (err) {
+    res.status(500).json({ message: 'Server error', error: err.message });
+  }
+};
+exports.deleteCourse = async (req, res) => {
+  const courseId = req.params.id;
+  try {
+    await pool.query('DELETE FROM courses WHERE id = $1', [courseId]);
+    res.status(200).json({ message: 'Course deleted successfully' });
+  } catch (err) {
+    res.status(500).json({ message: 'Server error', error: err.message });
+  }
+};
+exports.updateCourse = async (req, res) => {
+  const { id } = req.params;
+  const {
+    department,
+    number,
+    name,
+    term,
+    start_date,
+    end_date,
+    credits,
+    is_published,
+    is_active,
+  } = req.body;
 
+  try {
+    const result = await pool.query(
+      `UPDATE courses SET 
+        department=$1, number=$2, name=$3, term=$4, start_date=$5, end_date=$6,
+        credits=$7, is_published=$8, is_active=$9
+       WHERE id=$10 RETURNING *`,
+      [department, number, name, term, start_date, end_date, credits, is_published, is_active, id]
+    );
+
+    res.status(200).json({ message: "Course updated", course: result.rows[0] });
+  } catch (err) {
+    console.error("Update error:", err);
+    res.status(500).json({ message: "Server error", error: err.message });
+  }
+};
+
+  
 exports.createCourse = async (req, res) => {
   const {
     department,

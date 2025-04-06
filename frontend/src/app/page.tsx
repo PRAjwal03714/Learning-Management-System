@@ -31,7 +31,7 @@ export default function HomePage() {
 
         {/* Instructor */}
         <div
-          onClick={() => router.push('/instructor-signup')}
+          onClick={() => router.push('/instructor/signup')}
           className="flex flex-col items-center p-6 bg-white rounded-lg shadow-md hover:shadow-xl hover:scale-105 transition-transform duration-300 cursor-pointer"
           >
           <FaChalkboardTeacher className="text-purple-500 text-5xl mb-4" />

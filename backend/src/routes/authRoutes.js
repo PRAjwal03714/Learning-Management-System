@@ -9,7 +9,9 @@ const {  adminLogin, checkUserExists, resetPasswordWithOtp} = require("../contro
 
 const { sendOtpByEmail, verifyOtpByEmail } = require("../controllers/authController");
 
-const { startDuoAuth, handleDuoCallback } = require("../controllers/authController");
+const { startDuoAuth, handleDuoCallback, changePassword } = require("../controllers/authController");
+
+const { instructorLogin } = require("../controllers/authController");
 
 
 
@@ -93,8 +95,11 @@ router.get('/facebook/callback', passport.authenticate('facebook', {
   res.redirect(`http://localhost:3000/oauth-callback?token=${token}`);
 });
 
+router.post("/instructor-login", instructorLogin);
+
 
 router.post('/check-user', checkUserExists);
+router.post("/change-password", changePassword);
 
 // routes/authRoutes.js
 router.post("/reset-password-otp", resetPasswordWithOtp);

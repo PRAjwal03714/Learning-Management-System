@@ -7,6 +7,7 @@ require("./src/middlewares/authOAuth"); // Import OAuth Strategies
 const pool = require('./src/config/db'); // Import database connection
 
 const app = express();
+const adminRoutes = require('./src/routes/adminRoutes');
 
 const courseRoutes = require("./src/routes/courseRoutes");
 const announcementRoutes = require("./src/routes/announcementRoutes");
@@ -18,6 +19,7 @@ app.use(passport.initialize());
 app.use(express.urlencoded({ extended: true }));
 
 
+app.use('/api/admin', adminRoutes);
 
 // Routes (API endpoints)
 app.use("/api/auth", require("./src/routes/authRoutes"));

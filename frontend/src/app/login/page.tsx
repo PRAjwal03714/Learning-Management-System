@@ -6,7 +6,7 @@ export default function Login() {
   const router = useRouter();
   const [form, setForm] = useState({ email: '', password: '' });
   const [errorMsg, setErrorMsg] = useState('');
-  const [successMsg, setSuccessMsg] = useState('');
+  const [successMsg] = useState('');
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { id, value } = e.target;
@@ -42,6 +42,7 @@ export default function Login() {
         setErrorMsg('Login failed');
       }
     } catch (err) {
+      console.error(err);
       setErrorMsg('Server error');
     }
   };
@@ -67,7 +68,7 @@ export default function Login() {
 
         <div>
           <label htmlFor="password" className="block font-semibold text-sm text-gray-700 mb-1">
-            Passphrase
+            Password
           </label>
           <input
             type="password"
