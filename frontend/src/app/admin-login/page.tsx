@@ -36,6 +36,7 @@ export default function AdminLogin() {
         setErrorMsg(data.message || 'Login failed');
       }
     } catch (err) {
+      console.log(err)
       setErrorMsg('❌ Server error (API not ready)');
     }
 
@@ -46,7 +47,7 @@ export default function AdminLogin() {
   };
 
   return (
-    <div className="w-full max-w-sm bg-blue-50 border border-gray-300 rounded-md shadow-xl p-8">
+    <div className="w-full max-w-sm bg-white border border-gray-300 rounded-md shadow-xl p-8">
       <h1 className="text-2xl font-bold text-center mb-6">Admin Login</h1>
 
       <form onSubmit={handleLogin} className="space-y-4">
@@ -59,7 +60,7 @@ export default function AdminLogin() {
             id="email"
             value={form.email}
             onChange={handleChange}
-            className="w-full px-3 py-2 bg-blue-100 border border-gray-300 rounded-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+            className="w-full px-3 py-2 bg-white border border-gray-300 rounded-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
             required
           />
         </div>
@@ -73,7 +74,7 @@ export default function AdminLogin() {
             id="password"
             value={form.password}
             onChange={handleChange}
-            className="w-full px-3 py-2 bg-blue-100 border border-gray-300 rounded-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+            className="w-full px-3 py-2 bg-white border border-gray-300 rounded-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
             required
           />
         </div>

@@ -101,22 +101,22 @@ export default function EditCoursePage() {
         <input name="name" value={form.name} onChange={handleChange} className="border p-2 rounded col-span-2" />
         <input name="term" value={form.term} onChange={handleChange} className="border p-2 rounded" />
         <input name="credits" value={form.credits} onChange={handleChange} className="border p-2 rounded" />
-        <input type="date" name="start_date" value={form.start_date} onChange={handleChange} className="border p-2 rounded" />
-        <input type="date" name="end_date" value={form.end_date} onChange={handleChange} className="border p-2 rounded" />
+        <input type="date" name="start_date" value={form.start_date} onChange={handleChange} className="cursor-pointer border p-2 rounded" />
+        <input type="date" name="end_date" value={form.end_date} onChange={handleChange} className="cursor-pointer border p-2 rounded" />
 
         <div className="col-span-2 flex gap-8 mt-2 items-center">
           <label className="flex items-center gap-2">
             <input type="checkbox" name="is_published" checked={form.is_published} onChange={handleChange} />
-            <span className="text-sm">Published</span>
+            <span className="cursor-pointer text-xl">Published</span>
           </label>
           <label className="flex items-center gap-2">
             <input type="checkbox" name="is_active" checked={form.is_active} onChange={handleChange} />
-            <span className="text-sm">Active</span>
+            <span className="cursor-pointer text-xl">Active</span>
           </label>
         </div>
 
         <div className="col-span-2">
-          <button type="submit" className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 w-full">
+          <button type="submit" className="cursor-pointer bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 w-full">
             Update Course
           </button>
         </div>

@@ -1,6 +1,96 @@
 const { v4: uuidv4 } = require("uuid");
 const pool = require("../config/db");
 
+// Register student in course
+exports.registerCourse = async (req, res) => {
+  const student_id = req.user.id;
+  const { course_id } = req.body;
+
+  try {
+    await pool.query(
+      `INSERT INTO student_courses (student_id, course_id) VALUES ($1, $2)`,
+      [student_id, course_id]
+    );
+    res.status(201).json({ message: 'Registered successfully' });
+  } catch (error) {
+    res.status(500).json({ message: 'Error registering', error: error.message });
+  }
+};
+
+// Unregister student from course
+exports.unregisterCourse = async (req, res) => {
+  const student_id = req.user.id;
+  const { course_id } = req.body;
+
+  try {
+    await pool.query(
+      `DELETE FROM student_courses WHERE student_id = $1 AND course_id = $2`,
+      [student_id, course_id]
+    );
+    res.status(200).json({ message: 'Unregistered successfully' });
+  } catch (error) {
+    res.status(500).json({ message: 'Error unregistering', error: error.message });
+  }
+};
+
+// Get registered course IDs for student
+exports.getStudentRegisteredCourses = async (req, res) => {
+  try {
+    console.log("🧠 req.user:", req.user); // add this
+    const student_id = req.user?.id;
+
+    if (!student_id) {
+      console.log("🚫 No student_id in req.user");
+      return res.status(401).json({ message: "Unauthorized: No student ID found" });
+    }
+
+    const result = await pool.query(
+      `SELECT course_id FROM student_courses WHERE student_id = $1`,
+      [student_id]
+    );
+
+    console.log("✅ Registered courses result:", result.rows);
+
+    res.status(200).json({ registered: result.rows.map((row) => row.course_id) });
+  }  catch (error) {
+    console.error("❌ Failed to fetch registered courses:", error.message);
+    console.error("📦 Full error object:", error); // 👈 add this line
+    res.status(500).json({ message: 'Error fetching registered courses', error: error.message });
+  }
+  
+};
+exports.getAllAvailableCourses = async (req, res) => {
+  try {
+      const result = await pool.query(
+        `SELECT 
+           c.id AS course_id,
+           c.name AS course_name,
+           c.number,
+           c.term,
+           c.department,
+           c.start_date,
+           c.end_date,
+           u.name AS instructor_name
+         FROM courses c
+         JOIN instructors i ON c.instructor_id::text = i.user_id::text
+         JOIN users u ON i.user_id = u.id
+         WHERE 
+           c.is_published = true AND 
+           c.is_active = true
+         ORDER BY c.start_date DESC`
+      );
+    
+
+    res.status(200).json({
+      message: "Available courses fetched successfully",
+      courses: result.rows,
+    });
+  } catch (error) {
+    console.error("❌ Error fetching available courses:", error);
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
+
 exports.getInstructorCourses = async (req, res) => {
     const instructor_id = req.user.id;
   
@@ -124,3 +214,22 @@ exports.createCourse = async (req, res) => {
     res.status(500).json({ message: "Server error", error: error.message });
   }
 };
+
+exports.deleteCourse = async (req, res) => {
+  const courseId = req.params.id;
+
+  try {
+    // Delete related assignments first
+    await pool.query('DELETE FROM assignments WHERE course_id = $1', [courseId]);
+
+    // Then delete the course
+    await pool.query('DELETE FROM courses WHERE id = $1', [courseId]);
+
+    res.status(200).json({ message: 'Course deleted successfully' });
+  } catch (err) {
+    console.error("❌ Error deleting course:", err);
+    res.status(500).json({ message: 'Server error', error: err.message });
+  }
+};
+
+

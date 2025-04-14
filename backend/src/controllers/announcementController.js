@@ -2,25 +2,51 @@ const { v4: uuidv4 } = require("uuid");
 const pool = require("../config/db");
 
 
-exports.getAnnouncements = async (req, res) => {
-  const course_id = req.params.course_id;
+// 📁 backend/controllers/announcementController.js
 
-  if (!course_id) {
-    return res.status(400).json({ message: "Course ID is required" });
-  }
+// Inside announcementController.js
+exports.getAllInstructorAnnouncements = async (req, res) => {
+  const instructor_id = req.user.id;
 
   try {
-    // 🔍 Optional: Validate course existence
+    const result = await pool.query(
+      `SELECT a.id, a.title, a.content, a.created_at, c.name AS course_title
+       FROM announcements a
+       JOIN courses c ON a.course_id = c.id
+       WHERE a.instructor_id = $1
+       ORDER BY a.created_at DESC`,
+      [instructor_id]
+    );
+
+    res.status(200).json({
+      total: result.rows.length,
+      announcements: result.rows,
+    });
+  } catch (error) {
+    console.error('Error fetching all instructor announcements:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+
+exports.getAnnouncements = async (req, res) => {
+  const course_id = req.params.course_id;
+  // console.log("📥 /api/announcements/:course_id hit");
+  console.log("➡️ course_id:", course_id);
+
+  try {
     const courseCheck = await pool.query(
       "SELECT * FROM courses WHERE id = $1",
       [course_id]
     );
 
+    // console.log("📦 courseCheck result:", courseCheck.rows);
+
     if (courseCheck.rows.length === 0) {
-      return res.status(404).json({ message: "Course not found" });
+      console.log("❌ No course found");
+      return res.status(404).json({ message: "Course not found" }); // <-- IMPORTANT!
     }
 
-    // 📥 Get announcements
     const announcements = await pool.query(
       `SELECT id, title, content, created_at
        FROM announcements
@@ -36,10 +62,61 @@ exports.getAnnouncements = async (req, res) => {
     });
 
   } catch (error) {
-    console.error("Error fetching announcements:", error);
+    console.error("🔥 Server error:", error);
+    res.status(500).json({ message: "Internal server error" }); // <-- Always return message
+  }
+};
+exports.updateAnnouncement = async (req, res) => {
+  const { id } = req.params;
+  const instructor_id = req.user.id;
+  const { title, content } = req.body;
+
+  if (!title || !content) {
+    return res.status(400).json({ message: "Title and content are required" });
+  }
+
+  try {
+    // Check if announcement belongs to instructor
+    const check = await pool.query(
+      "SELECT * FROM announcements WHERE id = $1 AND instructor_id = $2",
+      [id, instructor_id]
+    );
+
+    if (check.rows.length === 0) {
+      return res.status(403).json({ message: "You are not authorized to edit this announcement" });
+    }
+
+    const updated = await pool.query(
+      `UPDATE announcements SET title = $1, content = $2 WHERE id = $3 RETURNING *`,
+      [title, content, id]
+    );
+
+    res.status(200).json({
+      message: "Announcement updated successfully",
+      announcement: updated.rows[0],
+    });
+  } catch (error) {
+    console.error("Error updating announcement:", error);
     res.status(500).json({ message: "Server error" });
   }
 };
+exports.getAnnouncementById = async (req, res) => {
+  const { id } = req.params;
+  const result = await pool.query("SELECT * FROM announcements WHERE id = $1", [id]);
+  if (result.rows.length === 0) return res.status(404).json({ message: "Not found" });
+  res.json(result.rows[0]);
+};
+
+exports.deleteAnnouncement = async (req, res) => {
+  const { id } = req.params;
+  const instructor_id = req.user.id;
+  const check = await pool.query("SELECT * FROM announcements WHERE id = $1 AND instructor_id = $2", [id, instructor_id]);
+  if (check.rows.length === 0) return res.status(403).json({ message: "Unauthorized" });
+
+  await pool.query("DELETE FROM announcements WHERE id = $1", [id]);
+  res.json({ message: "Deleted successfully" });
+};
+
 
 
 exports.createAnnouncement = async (req, res) => {

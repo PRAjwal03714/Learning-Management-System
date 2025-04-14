@@ -2,55 +2,85 @@
 
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
+import { useEffect, useState } from 'react';
 
 export default function LayoutWrapper({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const [hasMounted, setHasMounted] = useState(false);
 
-  const hideTopNav = pathname.startsWith('/instructor/dashboard') || pathname.startsWith('/dashboard');
+  // Fix hydration mismatch by deferring until after mount
+  useEffect(() => {
+    setHasMounted(true);
+  }, []);
+
+  if (!hasMounted) return null;
+
+  const hideTopNav =
+  pathname.startsWith('/instructor/dashboard') || pathname.startsWith('/student/dashboard');
+
+  const centerVertically =
+    pathname === '/signup' ||
+    pathname === '/login' ||
+    pathname === '/instructor/signup' ||
+    pathname === '/instructor/login' ||
+    pathname === '/admin-login';
 
   return (
-    <div className="flex flex-col min-h-screen w-screen bg-gradient-to-b from-white to-blue-200">
-      
+    <div className="flex flex-col min-h-screen w-screen bg-gradient-to-b bg-white">
       {!hideTopNav && (
-        
-        <div className="bg-gradient-to-r from-blue-800 via-purple-500 to-pink-400 w-full h-20 shadow-2xl flex items-center justify-between px-6">
-            
-
-          <Link href="/">
-            <span className="text-3xl text-white font-bold cursor-pointer hover:opacity-90">
+        <div className="w-full bg-white h-16 border-b border-gray-200 flex items-center justify-between px-8 sticky top-0 z-50">
+          {/* Left: Logo and Name */}
+          <Link href="/" className="flex items-center gap-2">
+            <div className="bg-red-700 text-white rounded-full w-9 h-9 flex items-center justify-center text-sm font-bold">
+              SM
+            </div>
+            <span className="text-3xl font-extrabold text-red-700 tracking-tight">
               StudyMate
             </span>
+
           </Link>
 
-          <div className="flex gap-4">
-          <Link href="/">
-              <button className="bg-white text-blue-700 font-semibold px-4 py-1.5 rounded hover:bg-blue-100 transition cursor-pointer">
-                Home
-              </button>
+          {/* Right: Nav Links */}
+          <div className="flex items-center gap-8 text-lg font-bold text-red-700">
+            <Link
+              href="/"
+              className={`hover:underline ${pathname === '/' ? 'underline' : ''}`}
+            >
+              Home
             </Link>
-            <Link href="/signup">
-              <button className="bg-white text-blue-700 font-semibold px-4 py-1.5 rounded hover:bg-blue-100 transition cursor-pointer">
-                Student
-              </button>
+            <Link
+              href="/signup"
+              className={`hover:underline ${pathname === '/signup' || pathname === '/login' ? 'underline' : ''
+                }`}
+            >
+              Student
             </Link>
-            <Link href="/instructor/signup">
-              <button className="bg-white text-purple-700 font-semibold px-4 py-1.5 rounded hover:bg-purple-100 transition cursor-pointer">
-                Instructor
-              </button>
+            <Link
+              href="/instructor/signup"
+              className={`hover:underline ${pathname === '/instructor/signup' || pathname === '/instructor/login'
+                  ? 'underline'
+                  : ''
+                }`}
+            >
+              Instructor
             </Link>
-            <Link href="/admin-login">
-              <button className="bg-white text-red-700 font-semibold px-4 py-1.5 rounded hover:bg-red-100 transition cursor-pointer">
-                Admin
-              </button>
+            <Link
+              href="/admin-login"
+              className={`hover:underline ${pathname === '/admin-login' ? 'underline' : ''}`}
+            >
+              Admin
             </Link>
           </div>
         </div>
+
       )}
 
       {/* Page Content */}
-      <div className="flex-1 flex items-center justify-center">
+      <main
+        className={`flex-1 w-full ${centerVertically ? 'flex items-center justify-center' : ''}`}
+      >
         {children}
-      </div>
+      </main>
     </div>
   );
 }

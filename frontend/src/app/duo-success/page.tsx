@@ -17,7 +17,7 @@ export default function DuoCallbackHandler() {
 
       if (res.ok) {
         localStorage.setItem('token', data.token);
-        router.push('/dashboard');
+        router.push('/stuent/dashboard');
       } else {
         alert('Duo verification failed.');
         router.push('/login');

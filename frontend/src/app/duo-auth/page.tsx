@@ -14,7 +14,7 @@ export default function DuoAuthPage() {
     }
 
     localStorage.setItem('token', token);
-    router.push('/dashboard');
+    router.push('/student/dashboard');
   }, [token, router]);
 
   return (

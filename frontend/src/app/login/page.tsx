@@ -37,7 +37,7 @@ export default function Login() {
         window.location.href = authUrl;
       } else if (data.token) {
         localStorage.setItem('token', data.token);
-        router.push('/dashboard');
+        router.push('/student/dashboard');
       } else {
         setErrorMsg('Login failed');
       }
@@ -48,20 +48,20 @@ export default function Login() {
   };
 
   return (
-    <div className="w-full max-w-sm bg-blue-50 border border-gray-300 rounded-md shadow-xl p-8">
+    <div className="w-full max-w-sm bg-white border border-gray-300 rounded-md shadow-xl p-8">
       <h1 className="text-2xl font-bold text-center mb-6">Student Login</h1>
 
       <form onSubmit={handleLogin} className="space-y-4">
         <div>
           <label htmlFor="email" className="block font-semibold text-sm text-gray-700 mb-1">
-            Username
+            Email
           </label>
           <input
             type="email"
             id="email"
             value={form.email}
             onChange={handleChange}
-            className="w-full px-3 py-2 bg-blue-100 border border-gray-300 rounded-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+            className="w-full px-3 py-2 bg-white border border-gray-300 rounded-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
             required
           />
         </div>
@@ -75,7 +75,7 @@ export default function Login() {
             id="password"
             value={form.password}
             onChange={handleChange}
-            className="w-full px-3 py-2 bg-blue-100 border border-gray-300 rounded-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+            className="w-full px-3 py-2 bg-white border border-gray-300 rounded-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
             required
           />
         </div>

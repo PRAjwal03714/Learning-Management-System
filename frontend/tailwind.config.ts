@@ -3,7 +3,10 @@ import type { Config } from 'tailwindcss'
 
 export default {
   content: [
- 
+      "./app/**/*.{js,ts,jsx,tsx}",
+      "./components/**/*.{js,ts,jsx,tsx}",
+      "./node_modules/react-big-calendar/lib/css/react-big-calendar.css",
+    
     // Or if using `src` directory:
     './src/**/*.{js,ts,jsx,tsx,mdx}',
   ],

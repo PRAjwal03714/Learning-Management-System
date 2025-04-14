@@ -1,5 +1,7 @@
 'use client';
+
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import {
   FaUser,
   FaTachometerAlt,
@@ -7,7 +9,6 @@ import {
   FaBullhorn,
   FaCalendarAlt,
   FaClipboardList,
-  FaSignOutAlt,
 } from 'react-icons/fa';
 import { useSidebar } from '@/context/SidebarContext';
 
@@ -16,13 +17,15 @@ type SidebarItemProps = {
   label: string;
   href?: string;
   onClick?: () => void;
+  active?: boolean;
 };
 
-function SidebarItem({ icon, label, href, onClick }: SidebarItemProps) {
+function SidebarItem({ icon, label, href, onClick, active }: SidebarItemProps) {
   const content = (
     <div
       onClick={onClick}
-      className="flex items-center gap-3 py-2 px-3 rounded-md cursor-pointer hover:bg-[#8c1f1f] transition text-white"
+      className={`flex items-center gap-3 py-2 px-3 rounded-md cursor-pointer transition
+        ${active ? 'bg-white text-red-800 font-semibold' : 'text-white hover:bg-[#8c1f1f]'}`}
     >
       <div className="text-lg">{icon}</div>
       <span className="text-md font-medium">{label}</span>
@@ -33,17 +36,51 @@ function SidebarItem({ icon, label, href, onClick }: SidebarItemProps) {
 }
 
 export default function InstructorSidebar() {
+  const pathname = usePathname();
   const { toggleCourseDrawer } = useSidebar();
 
+  // Highlight "Courses" if drawer is open OR route starts with courses
+  const isCoursesActive =
+    pathname.startsWith('/instructor/dashboard/courses');
+
   return (
-    <aside className="fixed top-20 left-0 w-56 h-[calc(100vh-5rem)] bg-[#7B1C1C] text-white z-40 shadow-lg flex flex-col items-start pt-6 px-4">
-      <SidebarItem icon={<FaUser />} label="Profile" href="/instructor/dashboard/profile" />
-      <SidebarItem icon={<FaTachometerAlt />} label="Dashboard" href="/instructor/dashboard" />
-      <SidebarItem icon={<FaBookOpen />} label="Courses" onClick={toggleCourseDrawer} />
-      <SidebarItem icon={<FaBullhorn />} label="Announcements" href="/instructor/dashboard/announcements" />
-      <SidebarItem icon={<FaCalendarAlt />} label="Calendar" href="/instructor/dashboard/calendar" />
-      <SidebarItem icon={<FaClipboardList />} label="Assignments" href="/instructor/dashboard/assignments" />
-      <SidebarItem icon={<FaSignOutAlt />} label="Logout" href="/logout" />
+    <aside className="fixed top-20 left-0 w-56 h-[calc(100vh-5rem)] bg-gradient-to-br from-red-800 to-red-800 text-white z-40 shadow-lg flex flex-col items-start pt-6 px-4">
+      <SidebarItem
+        icon={<FaUser />}
+        label="Profile"
+        href="/instructor/dashboard/profile"
+        active={pathname === '/instructor/dashboard/profile'}
+      />
+      <SidebarItem
+        icon={<FaTachometerAlt />}
+        label="Dashboard"
+        href="/instructor/dashboard"
+        active={pathname === '/instructor/dashboard'}
+      />
+      <SidebarItem
+        icon={<FaBookOpen />}
+        label="Courses"
+        onClick={toggleCourseDrawer}
+        active={isCoursesActive}
+      />
+      <SidebarItem
+        icon={<FaBullhorn />}
+        label="Announcements"
+        href="/instructor/dashboard/announcements"
+        active={pathname === '/instructor/dashboard/announcements'}
+      />
+      <SidebarItem
+        icon={<FaCalendarAlt />}
+        label="Calendar"
+        href="/instructor/dashboard/calendar"
+        active={pathname === '/instructor/dashboard/calendar'}
+      />
+      <SidebarItem
+        icon={<FaClipboardList />}
+        label="Assignments"
+        href="/instructor/dashboard/assignments"
+        active={pathname === '/instructor/dashboard/assignments'}
+      />
     </aside>
   );
 }
