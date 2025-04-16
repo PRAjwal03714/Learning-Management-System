@@ -15,23 +15,27 @@ export default function StudentCourseDrawer({ onClose }: { onClose: () => void }
   const router = useRouter();
 
   useEffect(() => {
-    const fetchCourses = async () => {
-      const res = await fetch('http://localhost:5001/api/courses/available', {
+    const fetchMyCourses = async () => {
+      const token=localStorage.getItem('token')
+      const res = await fetch('http://localhost:5001/api/courses/my-registered-courses', {
         headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
+          Authorization: `Bearer ${token}`,
         },
       });
-
+  
       const data = await res.json();
-      if (res.ok) setCourses(data.courses);
+      if (res.ok && data.courses) {
+        setCourses(data.courses); // ✅ expect "courses" key
+      }
     };
-
-    fetchCourses();
+  
+    fetchMyCourses();
   }, []);
+  
 
   const handleNavigate = (path: string) => {
     router.push(path);
-    onClose(); // Close drawer after navigating
+    onClose();
   };
 
   return (
@@ -58,19 +62,24 @@ export default function StudentCourseDrawer({ onClose }: { onClose: () => void }
         </button>
 
         <hr className="my-2" />
-        <h3 className="font-bold text-lg text-black-600">Available Courses</h3>
-        {courses.map((course) => (
-          <button
-            key={course.course_id}
-            onClick={() => handleNavigate(`/student/dashboard/courses/${course.course_id}`)}
-            className="text-sm text-red-800 hover:underline text-left cursor-pointer"
-          >
-            <div className="flex flex-col">
-              <span className="font-medium">{course.course_name}</span>
-              <span className="text-xs text-gray-500">{course.term}</span>
-            </div>
-          </button>
-        ))}
+        <h3 className="font-bold text-lg text-black-600">My Courses</h3>
+        
+        {Array.isArray(courses) && courses.length > 0 ? (
+          courses.map((course) => (
+            <button
+              key={course.course_id}
+              onClick={() => handleNavigate(`/student/dashboard/courses/${course.course_id}`)}
+              className="text-sm text-red-800 hover:underline text-left cursor-pointer"
+            >
+              <div className="flex flex-col">
+                <span className="font-medium">{course.course_name}</span>
+                <span className="text-xs text-gray-500">{course.term}</span>
+              </div>
+            </button>
+          ))
+        ) : (
+          <p className="text-gray-500 text-sm">No courses registered yet.</p>
+        )}
       </nav>
     </div>
   );

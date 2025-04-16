@@ -27,11 +27,12 @@ export default function CreateCoursePage() {
     e.preventDefault();
 
     try {
+      const token=localStorage.getItem('token')
       const res = await fetch('http://localhost:5001/api/courses/create-course', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(form),
       });

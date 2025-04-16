@@ -9,29 +9,30 @@ interface Course {
   id: string;
   name: string;
   term: string;
-  colorClass?: string;
+  color?: string;
 }
 
-const bgColors = [
-  'bg-red-500',
-  'bg-blue-500',
-  'bg-green-500',
-  'bg-yellow-500',
-  'bg-purple-500',
-  'bg-pink-500',
-  'bg-indigo-500',
-  'bg-orange-500',
-  'bg-teal-500',
+// IU-style consistent solid colors
+const colorPalette = [
+  '#7B1C1C', // IU Crimson
+  '#264653', // Deep Teal
+  '#2A9D8F', // Turquoise
+  '#E76F51', // Coral Red
+  '#F4A261', // Sand
+  '#8A5CF6', // Indigo
+  '#457B9D', // Sky Blue
+  '#A72608', // Brick
+  '#4A4E69', // Slate
 ];
 
-// Simple deterministic hash function to pick a color index
-const getColorClass = (id: string): string => {
+// Stable hash to pick a color from palette
+const getColor = (id: string): string => {
   let hash = 0;
   for (let i = 0; i < id.length; i++) {
     hash = id.charCodeAt(i) + ((hash << 5) - hash);
   }
-  const index = Math.abs(hash) % bgColors.length;
-  return bgColors[index];
+  const index = Math.abs(hash) % colorPalette.length;
+  return colorPalette[index];
 };
 
 export default function InstructorDashboard() {
@@ -56,7 +57,7 @@ export default function InstructorDashboard() {
 
       const coloredCourses = res.data.courses.map((course: Course) => ({
         ...course,
-        colorClass: getColorClass(course.id),
+        color: getColor(course.id),
       }));
 
       setCourses(coloredCourses);
@@ -70,7 +71,7 @@ export default function InstructorDashboard() {
   if (loading) return null;
 
   return (
-    <div className="p-8">
+    <div className=" -mt-3">
       <div className="flex items-center gap-3 mb-6">
         <FaBook className="text-3xl text-red-700" />
         <h1 className="text-3xl font-extrabold text-gray-800">Dashboard</h1>
@@ -83,7 +84,10 @@ export default function InstructorDashboard() {
             onClick={() => router.push(`/instructor/dashboard/courses/${course.id}`)}
             className="cursor-pointer bg-white border border-gray-300 shadow-sm rounded-lg overflow-hidden hover:shadow-lg transition"
           >
-            <div className={`h-28 ${course.colorClass}`}></div>
+            <div
+              className="h-28 w-full"
+              style={{ backgroundColor: course.color }}
+            ></div>
             <div className="p-4">
               <h2 className="text-lg font-semibold text-gray-800 truncate">{course.name}</h2>
               <p className="text-sm text-gray-600">{course.term}</p>

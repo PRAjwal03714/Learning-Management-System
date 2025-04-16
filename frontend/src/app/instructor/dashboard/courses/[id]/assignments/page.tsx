@@ -5,55 +5,48 @@ import ViewAssignments from './ViewAssignments';
 import CreateAssignment from './createAssignment';
 import { useParams } from 'next/navigation';
 import axios from 'axios';
+import { toast } from 'react-toastify';
 
 type Course = {
-  id: string;
   name: string;
-  number: string;
-  term: string;
-  department: string;
 };
 
 export default function AssignmentsPage() {
-  const [tab, setTab] = useState<'view' | 'create'>('view');
   const { id: courseId } = useParams();
+  const [tab, setTab] = useState<'view' | 'create'>('view');
   const [course, setCourse] = useState<Course | null>(null);
 
-  const fetchCourseDetails = async () => {
-    try {
-      const res = await axios.get(`http://localhost:5001/api/courses/${courseId}`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
-        },
-      });
-      setCourse(res.data.course);
-    } catch (err) {
-      console.error('Failed to fetch course details', err);
-    }
-  };
-
   useEffect(() => {
-    fetchCourseDetails();
+    const fetchCourse = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        const res = await axios.get(`http://localhost:5001/api/courses/${courseId}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setCourse(res.data.course);
+      } catch {
+        toast.error('Failed to fetch course info');
+      }
+    };
+
+    fetchCourse();
   }, [courseId]);
 
   return (
     <div className="p-6">
-      {/* Breadcrumb */}
       {course && (
-        <h1 className="text-xl font-semibold mb-4">
+        <div className="text-xl font-semibold mb-4">
           <span
-            onClick={() =>
-              window.location.href = `/instructor/dashboard/courses/${courseId}`
-            }
-            className="text-blue-700 font-bold hover:underline cursor-pointer"
+            onClick={() => window.location.href = `/instructor/dashboard/courses/${courseId}`}
+            className="text-blue-700 hover:underline cursor-pointer"
           >
-            {`${course.term}-BL-${course.department.toUpperCase()}-${course.number}`}
-          </span>{' '}
-          <span className="text-red-600">› Assignments</span>
-        </h1>
+            {course.name}
+          </span>
+          <span className="text-gray-400 mx-1">›</span>
+          <span className="text-red-600">Assignments</span>
+        </div>
       )}
 
-      {/* Toggle Buttons */}
       <div className="flex gap-4 mb-6">
         <button
           onClick={() => setTab('view')}

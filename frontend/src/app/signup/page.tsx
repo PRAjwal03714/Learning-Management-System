@@ -4,6 +4,8 @@ import { useState } from 'react';
 
 import { useRouter } from 'next/navigation';
 import { toast } from 'react-toastify';
+import Link from 'next/link'; // add this at the top
+
 
 export default function Signup() {
   const [form, setForm] = useState({
@@ -190,10 +192,10 @@ export default function Signup() {
           </div>
         )}
 
-        <p className="mt-4 text-center text-sm text-gray-600">
-          Already have an account?{' '}
-          <a href="/login" className="text-blue-600 hover:underline">Log in</a>
-        </p>
+<p className="mt-4 text-center text-sm text-gray-600">
+  Already have an account?{' '}
+  <Link href="/login" className="text-blue-600 hover:underline">Log in</Link>
+</p>
       </div>
     </div>
   );

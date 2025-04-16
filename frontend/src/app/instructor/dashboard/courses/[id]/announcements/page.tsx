@@ -1,19 +1,17 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useParams } from 'next/navigation';
 import CreateAnnouncement from './createAnnouncement';
 import ViewAnnouncements from './ViewAnnouncements';
+import { useParams } from 'next/navigation';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 
 type Course = {
-  department: string;
-  number: number;
-  term: string;
+  name: string;
 };
 
-const AnnouncementsPage = () => {
+export default function AnnouncementsPage() {
   const { id: courseId } = useParams();
   const [activeTab, setActiveTab] = useState<'create' | 'view'>('view');
   const [course, setCourse] = useState<Course | null>(null);
@@ -21,15 +19,13 @@ const AnnouncementsPage = () => {
   useEffect(() => {
     const fetchCourse = async () => {
       try {
+        const token = localStorage.getItem('token');
         const res = await axios.get(`http://localhost:5001/api/courses/${courseId}`, {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`,
-          },
+          headers: { Authorization: `Bearer ${token}` },
         });
         setCourse(res.data.course);
-      } catch (err) {
-        console.error(err);
-        toast.error('Failed to fetch course details');
+      } catch {
+        toast.error('Failed to fetch course info');
       }
     };
 
@@ -42,10 +38,10 @@ const AnnouncementsPage = () => {
       {course && (
         <div className="mb-4 text-xl font-semibold text-gray-800">
           <span
-            className="text-blue-700 hover:underline cursor-pointer"
             onClick={() => window.location.href = `/instructor/dashboard/courses/${courseId}`}
+            className="text-blue-700 hover:underline cursor-pointer"
           >
-            {course.term}-BL-{course.department.toUpperCase()}-{course.number}
+            {course.name}
           </span>
           <span className="text-gray-400 mx-1">›</span>
           <span className="text-red-600">Announcements</span>
@@ -68,7 +64,6 @@ const AnnouncementsPage = () => {
         </button>
       </div>
 
-      {/* Content */}
       {activeTab === 'view' ? (
         <ViewAnnouncements courseId={courseId as string} />
       ) : (
@@ -76,6 +71,4 @@ const AnnouncementsPage = () => {
       )}
     </div>
   );
-};
-
-export default AnnouncementsPage;
+}

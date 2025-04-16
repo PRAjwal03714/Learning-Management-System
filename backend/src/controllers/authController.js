@@ -92,9 +92,38 @@ exports.startDuoAuth = async (req, res) => {
   res.json({ authUrl });
 };
 
+// exports.handleDuoCallback = async (req, res) => {
+//   const { duo_code, state } = req.query;
+//   if (!duo_code || !state) return res.status(400).json({ message: "Missing Duo code or state" });
+
+//   try {
+//     const decoded = jwt.verify(state, process.env.JWT_SECRET);
+//     const username = decoded.username;
+
+//     const result = await duo.exchangeAuthorizationCodeFor2FAResult(duo_code, username);
+//     if (result?.auth_result?.result !== "allow") {
+//       return res.status(401).json({ message: "Duo Authentication Failed" });
+//     }
+
+//     const token = jwt.sign(
+//       { username, duoVerified: true },
+//       process.env.JWT_SECRET,
+//       { expiresIn: "1d" }
+//     );
+    
+//     // 👇 redirect to frontend with token as query param
+//     res.redirect(`http://localhost:3000/duo-auth?token=${token}`);
+//   } catch (err) {
+//     console.error("Duo Callback Error:", err);
+//     res.status(500).json({ message: "Duo verification failed" });
+//   }
+// };
 exports.handleDuoCallback = async (req, res) => {
   const { duo_code, state } = req.query;
-  if (!duo_code || !state) return res.status(400).json({ message: "Missing Duo code or state" });
+
+  if (!duo_code || !state) {
+    return res.status(400).json({ message: "Missing Duo code or state" });
+  }
 
   try {
     const decoded = jwt.verify(state, process.env.JWT_SECRET);
@@ -105,19 +134,32 @@ exports.handleDuoCallback = async (req, res) => {
       return res.status(401).json({ message: "Duo Authentication Failed" });
     }
 
+    const userQuery = await pool.query("SELECT id, role FROM users WHERE email = $1", [username]);
+    const user = userQuery.rows[0];
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
     const token = jwt.sign(
-      { username, duoVerified: true },
+      {
+        id: user.id,
+        role: user.role,
+        username,
+        duoVerified: true
+      },
       process.env.JWT_SECRET,
       { expiresIn: "1d" }
     );
-    
-    // 👇 redirect to frontend with token as query param
-    res.redirect(`http://localhost:3000/duo-auth?token=${token}`);
+
+    // Redirect to frontend with token
+    res.redirect(`http://localhost:3000/duo-success?token=${token}`);
   } catch (err) {
-    console.error("Duo Callback Error:", err);
+    console.error("❌ Duo Callback Error:", err);
     res.status(500).json({ message: "Duo verification failed" });
   }
 };
+
 exports.changePassword = async (req, res) => {
   const { email, currentPassword, newPassword } = req.body;
 

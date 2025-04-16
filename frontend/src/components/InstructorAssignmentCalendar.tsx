@@ -32,7 +32,7 @@ export default function InstructorAssignmentCalendar() {
   const router = useRouter();
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
+    const token=localStorage.getItem('token')
 
     axios
       .get('http://localhost:5001/api/assignments/all', {

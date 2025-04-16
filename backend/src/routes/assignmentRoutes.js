@@ -36,6 +36,8 @@ router.post(
 router.get('/all', authMiddleware, assignmentController.getAllInstructorAssignments);
 
 router.get('/by-course/:courseId', authMiddleware, assignmentController.getAssignmentsByCourse);
+router.get('/student', authMiddleware, assignmentController.getStudentAssignments);
+
 router.get('/:assignmentId', authMiddleware, assignmentController.getAssignmentById);
 router.put(
   '/:assignmentId',

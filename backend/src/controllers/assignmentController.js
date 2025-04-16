@@ -171,3 +171,26 @@ exports.deleteAssignmentFile = async (req, res) => {
     res.status(500).json({ error: 'Internal Server Error' });
   }
 };
+
+exports.getStudentAssignments = async (req, res) => {
+  const studentId = req.user.id;
+
+  try {
+    const assignmentsRes = await pool.query(`
+      SELECT 
+        a.id, a.title, a.due_date,
+        c.id AS course_id,
+        c.name AS course_title
+      FROM assignments a
+      JOIN courses c ON a.course_id = c.id
+      JOIN student_courses sc ON sc.course_id = c.id
+      WHERE sc.student_id = $1
+      ORDER BY a.due_date ASC
+    `, [studentId]);
+
+    res.json({ assignments: assignmentsRes.rows });
+  } catch (err) {
+    console.error("❌ Error fetching student assignments:", err);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+};

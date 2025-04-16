@@ -35,12 +35,13 @@ function MainLayout({ children }: { children: React.ReactNode }) {
         </div>
 
         <button
-          onClick={handleLogout}
-          className="flex items-center gap-2 bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 cursor-pointer"
-        >
-          <FaSignOutAlt />
-          Logout
-        </button>
+  onClick={handleLogout}
+  className="p-3 bg-red-600 text-white rounded-full shadow-md hover:bg-red-700 hover:scale-110 transition-all duration-200 ease-in-out cursor-pointer focus:outline-none focus:ring-2 focus:ring-red-300"
+  title="Logout"
+>
+  <FaSignOutAlt className="text-xl" />
+</button>
+
       </header>
 
       {/* Sidebar */}

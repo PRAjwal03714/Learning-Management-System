@@ -20,9 +20,10 @@ export default function CourseList({ refresh }: CourseListProps) {
   useEffect(() => {
     const fetchCourses = async () => {
       try {
+        const token=localStorage.getItem('token')
         const res = await fetch('http://localhost:5001/api/courses/my-courses', {
           headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`,
+            Authorization: `Bearer ${token}`,
           },
         });
         const data = await res.json();

@@ -35,49 +35,57 @@ exports.unregisterCourse = async (req, res) => {
 
 // Get registered course IDs for student
 exports.getStudentRegisteredCourses = async (req, res) => {
+  const student_id = req.user.id;
+
   try {
-    console.log("🧠 req.user:", req.user); // add this
-    const student_id = req.user?.id;
-
-    if (!student_id) {
-      console.log("🚫 No student_id in req.user");
-      return res.status(401).json({ message: "Unauthorized: No student ID found" });
-    }
-
     const result = await pool.query(
-      `SELECT course_id FROM student_courses WHERE student_id = $1`,
+      `SELECT 
+         c.id AS course_id,
+         c.name AS course_name,
+         c.term,
+         c.department,
+         c.credits, -- ✅ must include this
+         u.name AS instructor_name
+       FROM student_courses sc
+       JOIN courses c ON sc.course_id = c.id
+       JOIN instructors i ON c.instructor_id::text = i.user_id::text
+       JOIN users u ON i.user_id = u.id
+       WHERE sc.student_id = $1`,
       [student_id]
     );
 
-    console.log("✅ Registered courses result:", result.rows);
-
-    res.status(200).json({ registered: result.rows.map((row) => row.course_id) });
-  }  catch (error) {
-    console.error("❌ Failed to fetch registered courses:", error.message);
-    console.error("📦 Full error object:", error); // 👈 add this line
+    res.status(200).json({ courses: result.rows });
+  } catch (error) {
+    console.error("❌ Failed to fetch registered courses:", error);
     res.status(500).json({ message: 'Error fetching registered courses', error: error.message });
   }
-  
 };
+
+
+
+
+
 exports.getAllAvailableCourses = async (req, res) => {
   try {
       const result = await pool.query(
         `SELECT 
-           c.id AS course_id,
-           c.name AS course_name,
-           c.number,
-           c.term,
-           c.department,
-           c.start_date,
-           c.end_date,
-           u.name AS instructor_name
-         FROM courses c
-         JOIN instructors i ON c.instructor_id::text = i.user_id::text
-         JOIN users u ON i.user_id = u.id
-         WHERE 
-           c.is_published = true AND 
-           c.is_active = true
-         ORDER BY c.start_date DESC`
+  c.id AS course_id,
+  c.name AS course_name,
+  c.number,
+  c.term,
+  c.department,
+  c.start_date,
+  c.end_date,
+  c.credits::float AS credits,
+  u.name AS instructor_name
+FROM courses c
+JOIN instructors i ON c.instructor_id::text = i.user_id::text
+JOIN users u ON i.user_id = u.id
+WHERE 
+  c.is_published = true AND 
+  c.is_active = true
+ORDER BY c.start_date DESC;
+`
       );
     
 

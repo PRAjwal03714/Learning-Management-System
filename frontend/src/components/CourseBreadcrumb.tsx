@@ -7,10 +7,11 @@ interface Props {
   department: string;
   number: string;
   term: string;
-  currentPage?: string; // "Announcements", "Assignments", etc.
+  courseName: string;
+  currentPage?: string;
 }
 
-const CourseBreadcrumb = ({ courseId, department, number, term, currentPage = 'Announcements' }: Props) => {
+const CourseBreadcrumb = ({ courseId, courseName, currentPage = 'Announcements' }: Props) => {
   const router = useRouter();
 
   return (
@@ -20,7 +21,7 @@ const CourseBreadcrumb = ({ courseId, department, number, term, currentPage = 'A
           className="text-blue-700 hover:underline cursor-pointer"
           onClick={() => router.push(`/instructor/dashboard/courses/${courseId}`)}
         >
-          {term}-BL-{department.toUpperCase()}-{number}
+          {courseName}
         </span>
         <span className="text-gray-400"> › </span>
         <span className="text-red-600">{currentPage}</span>

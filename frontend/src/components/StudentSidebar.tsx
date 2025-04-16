@@ -10,7 +10,6 @@ import {
   FaTachometerAlt,
   FaBookOpen,
   FaCalendarAlt,
-  FaClipboardList,
 } from 'react-icons/fa';
 
 type SidebarItemProps = {
@@ -63,17 +62,23 @@ export default function StudentSidebar() {
   active={pathname.startsWith('/student/dashboard/courses')}
 />
 
-      <SidebarItem
+      {/* <SidebarItem
         icon={<FaClipboardList />}
         label="Assignments"
         href="/student/dashboard/assignments"
         active={pathname === '/student/dashboard/assignments'}
-      />
+      /> */}
       <SidebarItem
         icon={<FaCalendarAlt />}
         label="Calendar"
         href="/student/dashboard/calendar"
         active={pathname === '/student/dashboard/calendar'}
+      />
+      <SidebarItem
+        icon={<FaCalendarAlt />}
+        label="Chat"
+        href="/chat"
+        active={pathname === '/chat'}
       />
     </aside>
   );

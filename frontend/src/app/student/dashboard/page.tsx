@@ -9,22 +9,29 @@ interface Course {
   course_id: string;
   course_name: string;
   term: string;
-  colorClass?: string;
+  color?: string;
 }
 
-const bgColors = [
-  'bg-red-500', 'bg-blue-500', 'bg-green-500',
-  'bg-yellow-500', 'bg-purple-500', 'bg-pink-500',
-  'bg-indigo-500', 'bg-orange-500', 'bg-teal-500',
+// IU-style solid color palette
+const bgPalette = [
+  '#7B1C1C', // IU Crimson
+  '#264653', // Deep Teal
+  '#2A9D8F', // Turquoise
+  '#E76F51', // Coral Red
+  '#F4A261', // Sand
+  '#8A5CF6', // Indigo
+  '#457B9D', // Sky Blue
+  '#A72608', // Brick
+  '#4A4E69', // Slate
 ];
 
-const getColorClass = (id: string): string => {
+// Deterministic hash to select a color
+const getColor = (id: string): string => {
   let hash = 0;
   for (let i = 0; i < id.length; i++) {
     hash = id.charCodeAt(i) + ((hash << 5) - hash);
   }
-  const index = Math.abs(hash) % bgColors.length;
-  return bgColors[index];
+  return bgPalette[Math.abs(hash) % bgPalette.length];
 };
 
 export default function StudentDashboard() {
@@ -43,13 +50,13 @@ export default function StudentDashboard() {
 
   const fetchCourses = async (token: string) => {
     try {
-      const res = await axios.get('http://localhost:5001/api/courses/available', {
+      const res = await axios.get('http://localhost:5001/api/courses/my-registered-courses', {
         headers: { Authorization: `Bearer ${token}` },
       });
 
       const coloredCourses = res.data.courses.map((course: Course) => ({
         ...course,
-        colorClass: getColorClass(course.course_id),
+        color: getColor(course.course_id),
       }));
 
       setCourses(coloredCourses);
@@ -63,7 +70,7 @@ export default function StudentDashboard() {
   if (loading) return null;
 
   return (
-    <div className="p-8">
+    <div className="-mt-1">
       <div className="flex items-center gap-3 mb-6">
         <FaBook className="text-3xl text-red-700" />
         <h1 className="text-3xl font-extrabold text-gray-800">Dashboard</h1>
@@ -76,9 +83,11 @@ export default function StudentDashboard() {
             onClick={() => router.push(`/student/dashboard/courses/${course.course_id}`)}
             className="cursor-pointer bg-white border border-gray-300 shadow-sm rounded-lg overflow-hidden hover:shadow-lg transition"
           >
-            <div className={`h-28 ${course.colorClass}`}></div>
+            <div className="h-28 w-full" style={{ backgroundColor: course.color }}></div>
             <div className="p-4">
-              <h2 className="text-lg font-semibold text-gray-800 truncate">{course.course_name}</h2>
+              <h2 className="text-lg font-semibold text-gray-800 truncate">
+                {course.course_name}
+              </h2>
               <p className="text-sm text-gray-600">{course.term}</p>
             </div>
           </div>

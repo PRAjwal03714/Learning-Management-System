@@ -69,17 +69,18 @@ export default function InstructorSidebar() {
         href="/instructor/dashboard/announcements"
         active={pathname === '/instructor/dashboard/announcements'}
       />
-      <SidebarItem
-        icon={<FaCalendarAlt />}
-        label="Calendar"
-        href="/instructor/dashboard/calendar"
-        active={pathname === '/instructor/dashboard/calendar'}
-      />
+      
       <SidebarItem
         icon={<FaClipboardList />}
         label="Assignments"
         href="/instructor/dashboard/assignments"
         active={pathname === '/instructor/dashboard/assignments'}
+      />
+      <SidebarItem
+        icon={<FaCalendarAlt />}
+        label="Calendar"
+        href="/instructor/dashboard/calendar"
+        active={pathname === '/instructor/dashboard/calendar'}
       />
     </aside>
   );
