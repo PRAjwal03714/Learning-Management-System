@@ -2,22 +2,47 @@ const passport = require("passport");
 const GoogleStrategy = require("passport-google-oauth20").Strategy;
 const FacebookStrategy = require("passport-facebook").Strategy;
 const jwt = require("jsonwebtoken");
-
-// Temporary storage for OAuth users
-const users = [];
+const pool = require("../config/db");
 
 // Configure Google OAuth Strategy
 passport.use(new GoogleStrategy({
     clientID: process.env.GOOGLE_CLIENT_ID,
     clientSecret: process.env.GOOGLE_CLIENT_SECRET,
     callbackURL: "/api/auth/google/callback"
-}, (accessToken, refreshToken, profile, done) => {
-    let user = users.find(u => u.id === profile.id);
-    if (!user) {
-        user = { id: profile.id, name: profile.displayName, provider: "google" };
-        users.push(user);
+}, async (accessToken, refreshToken, profile, done) => {
+    try {
+        const email = profile.emails[0].value;
+        const name = profile.displayName;
+        const username = email.split('@')[0]; // Short, clean username
+        const role = 'student'; // All OAuth users are "student"
+
+        // Check if user already exists
+        const existingUser = await pool.query(`SELECT * FROM users WHERE email = $1`, [email]);
+
+        let user = existingUser.rows[0];
+
+        if (!user) {
+            // If not found, create new user
+            const newUser = await pool.query(`
+                INSERT INTO users (name, email, username, password, role)
+                VALUES ($1, $2, $3, $4, $5)
+                RETURNING *
+            `, [name, email, username, '', role]);
+
+            user = newUser.rows[0];
+
+            // Insert into students table too
+            await pool.query(`
+                INSERT INTO students (user_id)
+                VALUES ($1)
+            `, [user.id]);
+        }
+
+        return done(null, user);
+    } catch (err) {
+        console.error("❌ Error in Google Strategy:", err);
+        return done(err, null);
     }
-    return done(null, user);
 }));
 
 // Configure Facebook OAuth Strategy
@@ -26,20 +51,45 @@ passport.use(new FacebookStrategy({
     clientSecret: process.env.FACEBOOK_CLIENT_SECRET,
     callbackURL: "/api/auth/facebook/callback",
     profileFields: ["id", "displayName", "emails"]
-}, (accessToken, refreshToken, profile, done) => {
-    let user = users.find(u => u.id === profile.id);
-    if (!user) {
-        user = { id: profile.id, name: profile.displayName, provider: "facebook" };
-        users.push(user);
+}, async (accessToken, refreshToken, profile, done) => {
+    try {
+        const email = profile.emails?.[0]?.value || `${profile.id}@facebook.com`; // Fallback if no email
+        const name = profile.displayName;
+        const username = email.split('@')[0];
+        const role = 'student';
+
+        const existingUser = await pool.query(`SELECT * FROM users WHERE email = $1`, [email]);
+
+        let user = existingUser.rows[0];
+
+        if (!user) {
+            const newUser = await pool.query(`
+                INSERT INTO users (name, email, username, password, role)
+                VALUES ($1, $2, $3, $4, $5)
+                RETURNING *
+            `, [name, email, username, '', role]);
+
+            user = newUser.rows[0];
+
+            
+        }
+
+        return done(null, user);
+    } catch (err) {
+        console.error("❌ Error in Facebook Strategy:", err);
+        return done(err, null);
     }
-    return done(null, user);
 }));
 
 passport.serializeUser((user, done) => {
     done(null, user.id);
 });
 
-passport.deserializeUser((id, done) => {
-    const user = users.find(u => u.id === id);
-    done(null, user);
+passport.deserializeUser(async (id, done) => {
+    try {
+        const res = await pool.query(`SELECT * FROM users WHERE id = $1`, [id]);
+        done(null, res.rows[0]);
+    } catch (err) {
+        done(err, null);
+    }
 });

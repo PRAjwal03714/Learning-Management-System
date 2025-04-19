@@ -1,6 +1,6 @@
 'use client';
 
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { FaClipboardList } from 'react-icons/fa';
@@ -18,6 +18,8 @@ interface Assignment {
   description: string;
   due_date: string;
   files: AssignmentFile[];
+  comment?: string;   // ✅ add comment
+  marks?: number;     // ✅ add marks
 }
 
 interface Course {
@@ -25,7 +27,8 @@ interface Course {
 }
 
 export default function StudentAssignmentsPage() {
-  const { id } = useParams();
+  const { id: courseId } = useParams();
+  const router = useRouter();
   const [assignments, setAssignments] = useState<Assignment[]>([]);
   const [course, setCourse] = useState<Course | null>(null);
   const [search, setSearch] = useState('');
@@ -35,7 +38,7 @@ export default function StudentAssignmentsPage() {
 
     const fetchCourse = async () => {
       try {
-        const res = await axios.get(`http://localhost:5001/api/courses/${id}`, {
+        const res = await axios.get(`http://localhost:5001/api/courses/${courseId}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         setCourse(res.data.course);
@@ -46,7 +49,7 @@ export default function StudentAssignmentsPage() {
 
     const fetchAssignments = async () => {
       try {
-        const res = await axios.get(`http://localhost:5001/api/assignments/by-course/${id}`, {
+        const res = await axios.get(`http://localhost:5001/api/assignments/published/${courseId}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         setAssignments(res.data.assignments || []);
@@ -54,22 +57,27 @@ export default function StudentAssignmentsPage() {
         toast.error('Failed to fetch assignments');
       }
     };
+    
 
     fetchCourse();
     fetchAssignments();
-  }, [id]);
+  }, [courseId]);
 
   const filtered = assignments.filter((a) =>
     a.title.toLowerCase().includes(search.toLowerCase()) ||
     a.description.toLowerCase().includes(search.toLowerCase())
   );
 
+  const handleCardClick = (assignmentId: string) => {
+    router.push(`/student/dashboard/courses/${courseId}/assignments/${assignmentId}`);
+  };
+
   return (
-    <div className="p-6">
+    <div className="p-6 -mt-3">
       {/* 🔷 Breadcrumb Header */}
       <div className="text-xl font-semibold text-blue-700 mb-2">
         <span
-          onClick={() => (window.location.href = `/student/dashboard/courses/${id}`)}
+          onClick={() => router.push(`/student/dashboard/courses/${courseId}`)}
           className="cursor-pointer hover:underline"
         >
           {course?.name || 'Course'}
@@ -98,42 +106,44 @@ export default function StudentAssignmentsPage() {
       ) : (
         <div className="space-y-4">
           {filtered.map((a) => (
-            <div key={a.id} className="border border-gray-300 rounded-lg p-4 shadow-sm hover:shadow-md transition bg-white">
-              <div className="flex items-center justify-between">
-                <div className="flex gap-3 items-center">
-                  <div className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center">
-                    <FaClipboardList className="text-indigo-600" />
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-semibold text-gray-800">{a.title}</h3>
-                    <p className="text-sm text-gray-500">
-                      Due: {new Date(a.due_date).toLocaleDateString()}
-                    </p>
-                  </div>
+            <div 
+              key={a.id}
+              onClick={() => handleCardClick(a.id)}
+              className="border border-gray-300 rounded-lg p-4 shadow-sm bg-white cursor-pointer hover:shadow-md hover:bg-indigo-50 transition"
+            >
+              {/* Assignment Info */}
+              <div>
+                <h3 className="text-xl font-bold text-gray-900">{a.title}</h3>
+                <p className="text-gray-700 mt-1">{a.description}</p>
+
+                <div className="mt-2 space-y-1 text-sm text-gray-600">
+                  <p><span className="font-semibold text-gray-800">Due:</span> {new Date(a.due_date).toDateString()}</p>
+                  {a.comment && (
+                    <p><span className="font-semibold text-gray-800">Comments:</span> {a.comment}</p>
+                  )}
+                  {a.marks !== undefined && (
+                    <p><span className="font-semibold text-gray-800">Marks:</span> {a.marks}</p>
+                  )}
                 </div>
-              </div>
 
-              <p className="text-sm text-gray-700 mt-2 line-clamp-3">{a.description}</p>
-
-              {a.files?.length > 0 && (
-                <div className="mt-4">
-                  <p className="font-semibold text-sm text-gray-800 mb-1">Files:</p>
-                  <ul className="list-disc list-inside text-sm">
+                {/* Attached Files */}
+                {a.files?.length > 0 && (
+                  <div className="mt-4 space-y-1">
                     {a.files.map((file) => (
-                      <li key={file.id}>
-                        <a
-                          href={`http://localhost:5001${file.url}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-blue-600 underline"
-                        >
-                          {file.name}
-                        </a>
-                      </li>
+                      <a
+                        key={file.id}
+                        href={`http://localhost:5001${file.url}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-600 text-sm block"
+                        onClick={(e) => e.stopPropagation()} // 🔥 Prevent card click
+                      >
+                        📎 {file.name}
+                      </a>
                     ))}
-                  </ul>
-                </div>
-              )}
+                  </div>
+                )}
+              </div>
             </div>
           ))}
         </div>

@@ -10,7 +10,7 @@ export default function OAuthCallbackPage() {
   useEffect(() => {
     if (token) {
       localStorage.setItem('token', token);
-      router.push('/dashboard');
+      router.push('/student/dashboard');
     } else {
       alert('Missing token from provider');
       router.push('/login');

@@ -1,31 +1,25 @@
-// const multer = require('multer');
-// const path = require('path');
-
-// // Set up storage configuration
-// const storage = multer.diskStorage({
-//   destination: function (req, file, cb) {
-//     cb(null, 'uploads/assignments/'); // ensure this folder exists!
-//   },
-//   filename: function (req, file, cb) {
-//     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-//     cb(null, uniqueSuffix + path.extname(file.originalname));
-//   },
-// });
-
-// const upload = multer({ storage });
-
-// module.exports = upload;
 const fs = require('fs');
-
 const multer = require('multer');
 const path = require('path');
 
 //
+// Helper to ensure folder exists
+//
+function ensureFolderExists(dir) {
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir, { recursive: true });
+  }
+}
+
+//
 // 🔹 Assignment Upload Storage
 //
+const assignmentDir = path.join(__dirname, '../../uploads/assignments');
+ensureFolderExists(assignmentDir);
+
 const assignmentStorage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, 'uploads/assignments/');
+    cb(null, assignmentDir);
   },
   filename: function (req, file, cb) {
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
@@ -35,12 +29,26 @@ const assignmentStorage = multer.diskStorage({
 const uploadAssignment = multer({ storage: assignmentStorage });
 
 //
+// 🔹 Student Submission Storage
+//
+const studentSubmissionDir = path.join(__dirname, '../../uploads/student-submissions');
+ensureFolderExists(studentSubmissionDir);
+
+const studentSubmissionStorage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, 'uploads/student-submissions/');
+  },
+  filename: function (req, file, cb) {
+    cb(null, `${Date.now()}-${file.originalname}`);
+  }
+});
+const uploadStudentSubmission = multer({ storage: studentSubmissionStorage });
+
+//
 // 🔹 Instructor File Upload Storage
 //
 const instructorDir = path.join(__dirname, '../../uploads/instructor-files');
-if (!fs.existsSync(instructorDir)) {
-  fs.mkdirSync(instructorDir, { recursive: true });
-}
+ensureFolderExists(instructorDir);
 
 const instructorStorage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -51,14 +59,13 @@ const instructorStorage = multer.diskStorage({
     cb(null, uniqueName + path.extname(file.originalname));
   }
 });
-
 const uploadInstructorFile = multer({ storage: instructorStorage });
 
-
 //
-// ✅ Export both
+// ✅ Export all uploaders
 //
 module.exports = {
   uploadAssignment,
   uploadInstructorFile,
+  uploadStudentSubmission,
 };

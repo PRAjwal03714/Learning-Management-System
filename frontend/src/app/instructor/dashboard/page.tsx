@@ -73,7 +73,7 @@ export default function InstructorDashboard() {
   return (
     <div className=" -mt-3">
       <div className="flex items-center gap-3 mb-6">
-        <FaBook className="text-3xl text-red-700" />
+        <FaBook className="text-3xl text-[#7c0000]" />
         <h1 className="text-3xl font-extrabold text-gray-800">Dashboard</h1>
       </div>
 

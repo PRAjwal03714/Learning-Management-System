@@ -17,9 +17,10 @@ interface Assignment {
   description: string;
   due_date: string;
   is_published: boolean;
+  comment: string; // ✅ new
+  marks: number;   // ✅ new
   files: AssignmentFile[];
 }
-
 
 interface Props {
   courseId: string;
@@ -70,22 +71,35 @@ export default function ViewAssignments({ courseId }: Props) {
               <span className="font-semibold">Due:</span>{' '}
               {new Date(a.due_date).toDateString()}
             </p>
-            {a.files?.length > 0 && (
-  <div className="mt-2 space-y-1">
-    {a.files.map((file) => (
-      <a
-        key={file.id}
-        href={`http://localhost:5001${file.url}`}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="text-blue-600 text-sm cursor-pointer block"
-      >
-        📎 {file.name}
-      </a>
-    ))}
-  </div>
-)}
 
+            {/* 🔥 New Comments and Marks section */}
+            {a.comment && (
+              <p className="text-sm text-gray-500 mt-1">
+                <span className="font-semibold">Comments:</span> {a.comment}
+              </p>
+            )}
+            {typeof a.marks === 'number' && (
+              <p className="text-sm text-gray-500 mt-1">
+                <span className="font-semibold">Marks:</span> {a.marks}
+              </p>
+            )}
+
+            {/* Files */}
+            {a.files?.length > 0 && (
+              <div className="mt-2 space-y-1">
+                {a.files.map((file) => (
+                  <a
+                    key={file.id}
+                    href={`http://localhost:5001${file.url}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-600 text-sm cursor-pointer block"
+                  >
+                    📎 {file.name}
+                  </a>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Right: Status + Actions */}

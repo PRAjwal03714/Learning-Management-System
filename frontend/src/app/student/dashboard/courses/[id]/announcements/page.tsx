@@ -58,7 +58,7 @@ export default function StudentAnnouncementsPage() {
     );
 
     return (
-        <div className="p-6">
+        <div className="p-6 -mt-3">
             {/* 🔷 Breadcrumb Header */}
             <div className="text-xl font-semibold text-blue-700 mb-2">
                 <span

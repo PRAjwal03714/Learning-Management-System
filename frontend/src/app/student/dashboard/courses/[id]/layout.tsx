@@ -2,12 +2,16 @@
 
 import Link from 'next/link';
 import { useParams, usePathname } from 'next/navigation';
+import CourseChat from '@/components/CourseChat';
+
 
 const navItems = [
   { name: 'Home', path: '' },
   { name: 'Assignments', path: 'assignments' },
   { name: 'Announcements', path: 'announcements' },
   { name: 'Files', path: 'files' },
+  { name: 'Chat', path: 'chat' },
+
 ];
 
 export default function CourseLayout({ children }: { children: React.ReactNode }) {
@@ -24,8 +28,8 @@ export default function CourseLayout({ children }: { children: React.ReactNode }
     <div className="flex h-[calc(100vh-5rem)] -ml-6"> {/* Matches instructor layout */}
       {/* Course Sidebar */}
       <aside className="w-56 fixed top-20 left-56 h-[calc(100vh-5rem)] from-white to-blue-200 text-red z-40 px-4 pt-6 overflow-y-auto">
-        <h2 className="text-xl font-semibold px-4 mb-4">Course Menu</h2>
-        <nav className="flex flex-col text-sm">
+        <h2 className="text-xl text-[#7c0000] font-semibold px-4 mb-4">Course Menu</h2>
+        <nav className="flex flex-col text-md">
           {navItems.map(({ name, path }) => (
             <Link
               key={path}
@@ -42,7 +46,13 @@ export default function CourseLayout({ children }: { children: React.ReactNode }
 
       {/* Main Content Area */}
       <main className="ml-[14rem] -mt-9 pt-2 flex-1 p-6 bg-white overflow-y-auto">
-        {children}
+      <div className="p-6">
+          {pathname.endsWith('/chat') ? (
+            <CourseChat />
+          ) : (
+            children
+          )}
+        </div>
       </main>
     </div>
   );

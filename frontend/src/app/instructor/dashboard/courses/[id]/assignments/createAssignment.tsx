@@ -15,6 +15,8 @@ export default function CreateAssignment({ courseId }: { courseId: string }) {
   const [description, setDescription] = useState('');
   const [dueDate, setDueDate] = useState('');
   const [isPublished, setIsPublished] = useState(false);
+  const [marks, setMarks] = useState('');
+
 
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
@@ -53,6 +55,7 @@ export default function CreateAssignment({ courseId }: { courseId: string }) {
     formData.append('title', title);
     formData.append('description', description);
     formData.append('due_date', dueDate);
+    formData.append('marks', marks);
     formData.append('is_published', isPublished.toString());
     formData.append('course_id', courseId);
     formData.append('comment', comment);
@@ -122,6 +125,17 @@ export default function CreateAssignment({ courseId }: { courseId: string }) {
               required
             />
           </div>
+          <div>
+  <label className="block text-sm font-medium text-gray-700">Total Marks:</label>
+  <input
+    type="number"
+    className="border rounded px-4 py-2 w-full"
+    value={marks}
+    onChange={(e) => setMarks(e.target.value)}
+    placeholder="Enter total marks (e.g., 100)"
+    required
+  />
+</div>
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">

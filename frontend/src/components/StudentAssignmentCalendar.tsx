@@ -5,6 +5,7 @@ import 'react-big-calendar/lib/css/react-big-calendar.css';
 import moment from 'moment';
 import axios from 'axios';
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 interface Assignment {
   id: string;
@@ -20,6 +21,7 @@ interface Event {
   end: Date;
   allDay: boolean;
   course_id: string;
+  assignment_id: string;
 }
 
 const localizer = momentLocalizer(moment);
@@ -28,9 +30,11 @@ export default function StudentAssignmentCalendar() {
   const [events, setEvents] = useState<Event[]>([]);
   const [currentDate, setCurrentDate] = useState(new Date());
   const [view, setView] = useState<View>(Views.MONTH);
+  const router = useRouter();
 
   useEffect(() => {
     const token = localStorage.getItem('token');
+
     axios
       .get('http://localhost:5001/api/assignments/student', {
         headers: { Authorization: `Bearer ${token}` },
@@ -42,11 +46,16 @@ export default function StudentAssignmentCalendar() {
           end: new Date(a.due_date),
           allDay: true,
           course_id: a.course_id,
+          assignment_id: a.id,
         }));
         setEvents(mapped);
       })
       .catch((err) => console.error('❌ Failed to load student assignments:', err));
   }, []);
+
+  const handleSelectEvent = (event: Event) => {
+    router.push(`/student/dashboard/courses/${event.course_id}/assignments`);
+  };
 
   return (
     <div className="flex justify-center items-center w-full px-4 py-10">
@@ -61,6 +70,7 @@ export default function StudentAssignmentCalendar() {
           onView={setView}
           date={currentDate}
           onNavigate={setCurrentDate}
+          onSelectEvent={handleSelectEvent}
           style={{ height: '100%', width: '100%' }}
         />
       </div>

@@ -167,7 +167,7 @@ export default function EnrollCoursesPage() {
                         disabled={!isRegistered}
                         className={`px-3 py-1 rounded text-white ${!isRegistered
                             ? 'bg-gray-400 cursor-not-allowed'
-                            : 'bg-red-600 hover:bg-red-700 cursor-pointer'
+                            : 'bg-[#7c0000] hover:bg-[#7c0000] cursor-pointer'
                           }`}
                       >
                         Unregister

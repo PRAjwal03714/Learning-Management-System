@@ -30,17 +30,17 @@ function MainLayout({ children }: { children: React.ReactNode }) {
       {/* Top Navigation Bar */}
       <header className="fixed top-0 left-0 w-full h-20 bg-white border-b border-gray-200 shadow-md z-50 flex items-center justify-between px-6">
         <div className="flex items-center gap-3">
-          <div className="bg-red-700 text-white rounded-full w-10 h-10 flex items-center justify-center text-sm font-bold">
+          <div className="bg-[#7c0000] text-white rounded-full w-10 h-10 flex items-center justify-center text-sm font-bold">
             SM
           </div>
-          <Link href="/instructor/dashboard" className="text-3xl font-extrabold text-red-700 tracking-tight">
+          <Link href="/instructor/dashboard" className="text-3xl font-extrabold text-[#7c0000] tracking-tight">
   StudyMate
 </Link>        </div>
 
         {/* Logout Button */}
         <button
   onClick={handleLogout}
-  className="p-3 bg-red-600 text-white rounded-full shadow-md hover:bg-red-700 hover:scale-110 transition-all duration-200 ease-in-out cursor-pointer focus:outline-none focus:ring-2 focus:ring-red-300"
+  className="p-3 bg-[#7c0000] text-white rounded-full shadow-md hover:bg-[#7c0000] hover:scale-110 transition-all duration-200 ease-in-out cursor-pointer focus:outline-none focus:ring-2 focus:ring-red-300"
   title="Logout"
 >
   <FaSignOutAlt className="text-xl" />

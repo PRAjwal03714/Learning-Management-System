@@ -38,7 +38,7 @@ export default function CourseHomePage() {
   if (!course) return <div className="text-center mt-20 text-gray-500">Loading course...</div>;
 
   return (
-    <div className="-ml-2 max-w-5xl mx-auto mt-6 bg-white p-6 rounded shadow leading-relaxed">
+    <div className="-ml-2 max-w-5xl mx-auto -mt-3 bg-white p-6 rounded shadow leading-relaxed">
       <h1 className="text-2xl md:text-3xl font-bold text-gray-800 mb-6">
         {course.term.toUpperCase()}-BL-{course.department.toUpperCase()}-{course.number} • {course.name.toUpperCase()}
       </h1>

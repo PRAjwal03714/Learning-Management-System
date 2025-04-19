@@ -9,7 +9,7 @@ export default function HomePage() {
   return (
     <div className="min-h-screen flex flex-col">
       {/* Hero Section */}
-      <section className="flex flex-col justify-center items-center text-center bg-gradient-to-br from-red-800 to-red-800 text-white px-6 py-24 md:py-32">
+      <section className="flex flex-col justify-center items-center text-center bg-[#7c0000] text-white px-6 py-24 md:py-32">
         <h1 className="text-4xl md:text-5xl font-bold mb-4">
         Empower Learning with <span className="text-white">StudyMate</span>
         </h1>

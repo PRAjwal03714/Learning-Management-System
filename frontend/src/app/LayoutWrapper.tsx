@@ -31,17 +31,17 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
         <div className="w-full bg-white h-16 border-b border-gray-200 flex items-center justify-between px-8 sticky top-0 z-50">
           {/* Left: Logo and Name */}
           <Link href="/" className="flex items-center gap-2">
-            <div className="bg-red-700 text-white rounded-full w-9 h-9 flex items-center justify-center text-sm font-bold">
+            <div className="bg-[#7c0000] text-white rounded-full w-9 h-9 flex items-center justify-center text-sm font-bold">
               SM
             </div>
-            <span className="text-3xl font-extrabold text-red-700 tracking-tight">
+            <span className="text-3xl font-extrabold text-[#7c0000] tracking-tight">
               StudyMate
             </span>
 
           </Link>
 
           {/* Right: Nav Links */}
-          <div className="flex items-center gap-8 text-lg font-bold text-red-700">
+          <div className="flex items-center gap-8 text-lg font-bold text-[#7c0000]">
             <Link
               href="/"
               className={`hover:underline ${pathname === '/' ? 'underline' : ''}`}

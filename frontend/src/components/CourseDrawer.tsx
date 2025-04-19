@@ -47,13 +47,13 @@ export default function CourseDrawer({ onClose }: { onClose: () => void }) {
       <nav className="flex flex-col p-4 space-y-3">
         <button
           onClick={() => handleNavigate('/instructor/dashboard/courses')}
-          className="text-red-800 hover:underline text-left cursor-pointer"
+          className="text-base text-[#7c0000] hover:underline text-left cursor-pointer"
         >
           All Courses
         </button>
         <button
           onClick={() => handleNavigate('/instructor/dashboard/courses/create')}
-          className="text-red-800 hover:underline text-left cursor-pointer"
+          className="text-[#7c0000] hover:underline text-left cursor-pointer"
         >
           Create Course
         </button>
@@ -64,7 +64,7 @@ export default function CourseDrawer({ onClose }: { onClose: () => void }) {
           <button
             key={course.id}
             onClick={() => handleNavigate(`/instructor/dashboard/courses/${course.id}`)}
-            className="text-sm text-red-800 hover:underline text-left cursor-pointer"
+            className="text-md text-[#7c0000] hover:underline text-left cursor-pointer"
           >
             <div className="flex flex-col">
               <span className="font-medium">{course.name}</span>
