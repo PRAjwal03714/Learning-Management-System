@@ -155,7 +155,7 @@ export default function FilesPage() {
   const visibleFiles = files.filter((f) => (f.folder_id ?? null) === currentFolderId && f.name.toLowerCase().includes(searchTerm.toLowerCase()));
 
   return (
-    <div className="p-6 -mt-3">
+    <div className="p-6 -mt-6">
       {/* Breadcrumb */}
       {course && (
   <div className="text-xl font-semibold mb-4 text-blue-700 flex items-center gap-4">

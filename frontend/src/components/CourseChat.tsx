@@ -300,7 +300,7 @@ export default function CourseChat() {
   }
 
   return (
-    <div className="flex h-full bg-white relative">
+    <div className="-mt-4 flex h-full bg-white relative">
       {/* Users List with its own border */}
       <div className="w-64 overflow-y-auto bg-white border-r border-gray-200">
         <div className="p-4 border-b border-gray-200 sticky top-0 bg-white z-10">

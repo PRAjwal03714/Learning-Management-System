@@ -33,7 +33,7 @@ export default function AssignmentsPage() {
   }, [courseId]);
 
   return (
-    <div className="p-6 -mt-3">
+    <div className="p-6 -mt-6">
       {course && (
         <div className="text-xl font-semibold mb-4">
           <span

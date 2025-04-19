@@ -33,7 +33,7 @@ export default function AnnouncementsPage() {
   }, [courseId]);
 
   return (
-    <div className="p-6 -mt-3">
+    <div className="p-6 -mt-6">
       {/* Breadcrumb */}
       {course && (
         <div className="mb-4 text-xl font-semibold text-gray-800">

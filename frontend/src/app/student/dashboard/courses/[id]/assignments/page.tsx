@@ -17,9 +17,9 @@ interface Assignment {
   title: string;
   description: string;
   due_date: string;
+  comment?: string;
+  marks?: number;
   files: AssignmentFile[];
-  comment?: string;   // ✅ add comment
-  marks?: number;     // ✅ add marks
 }
 
 interface Course {
@@ -32,35 +32,32 @@ export default function StudentAssignmentsPage() {
   const [assignments, setAssignments] = useState<Assignment[]>([]);
   const [course, setCourse] = useState<Course | null>(null);
   const [search, setSearch] = useState('');
+  const [loading, setLoading] = useState(true);
+
+  const fetchData = async () => {
+    const token = localStorage.getItem('token');
+    try {
+      const [courseRes, assignmentsRes] = await Promise.all([
+        axios.get(`http://localhost:5001/api/courses/${courseId}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        }),
+        axios.get(`http://localhost:5001/api/assignments/published/${courseId}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        }),
+      ]);
+
+      setCourse(courseRes.data.course);
+      setAssignments(assignmentsRes.data.assignments || []);
+    } catch (err) {
+      console.error(err);
+      toast.error('Failed to load course or assignments');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
-
-    const fetchCourse = async () => {
-      try {
-        const res = await axios.get(`http://localhost:5001/api/courses/${courseId}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        setCourse(res.data.course);
-      } catch {
-        toast.error('Failed to fetch course info');
-      }
-    };
-
-    const fetchAssignments = async () => {
-      try {
-        const res = await axios.get(`http://localhost:5001/api/assignments/published/${courseId}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        setAssignments(res.data.assignments || []);
-      } catch {
-        toast.error('Failed to fetch assignments');
-      }
-    };
-    
-
-    fetchCourse();
-    fetchAssignments();
+    fetchData();
   }, [courseId]);
 
   const filtered = assignments.filter((a) =>
@@ -72,8 +69,12 @@ export default function StudentAssignmentsPage() {
     router.push(`/student/dashboard/courses/${courseId}/assignments/${assignmentId}`);
   };
 
+  if (loading) {
+    return <div className="text-gray-600">Loading assignments...</div>;
+  }
+
   return (
-    <div className="p-6 -mt-3">
+    <div className="mt-1">
       {/* 🔷 Breadcrumb Header */}
       <div className="text-xl font-semibold text-blue-700 mb-2">
         <span
@@ -106,12 +107,11 @@ export default function StudentAssignmentsPage() {
       ) : (
         <div className="space-y-4">
           {filtered.map((a) => (
-            <div 
+            <div
               key={a.id}
               onClick={() => handleCardClick(a.id)}
               className="border border-gray-300 rounded-lg p-4 shadow-sm bg-white cursor-pointer hover:shadow-md hover:bg-indigo-50 transition"
             >
-              {/* Assignment Info */}
               <div>
                 <h3 className="text-xl font-bold text-gray-900">{a.title}</h3>
                 <p className="text-gray-700 mt-1">{a.description}</p>
@@ -121,13 +121,13 @@ export default function StudentAssignmentsPage() {
                   {a.comment && (
                     <p><span className="font-semibold text-gray-800">Comments:</span> {a.comment}</p>
                   )}
-                  {a.marks !== undefined && (
+                  {typeof a.marks === 'number' && (
                     <p><span className="font-semibold text-gray-800">Marks:</span> {a.marks}</p>
                   )}
                 </div>
 
-                {/* Attached Files */}
-                {a.files?.length > 0 && (
+                {/* 📎 Attached Files */}
+                {a.files && a.files.length > 0 && (
                   <div className="mt-4 space-y-1">
                     {a.files.map((file) => (
                       <a
@@ -135,8 +135,8 @@ export default function StudentAssignmentsPage() {
                         href={`http://localhost:5001${file.url}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-blue-600 text-sm block"
-                        onClick={(e) => e.stopPropagation()} // 🔥 Prevent card click
+                        onClick={(e) => e.stopPropagation()} // prevent card click
+                        className="block text-sm text-blue-600 hover:underline"
                       >
                         📎 {file.name}
                       </a>

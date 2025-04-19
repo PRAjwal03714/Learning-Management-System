@@ -1,48 +1,47 @@
 'use client';
 
+import { useState, useEffect, useRef } from 'react';
 import { useParams } from 'next/navigation';
-import { useEffect, useState, useRef } from 'react';
 import axios from 'axios';
 import { toast } from 'react-toastify';
-
-interface AssignmentFile {
-  id: string;
-  name: string;
-  url: string;
-}
+import { FaTimes } from 'react-icons/fa';
 
 interface Assignment {
   id: string;
   title: string;
   description: string;
   due_date: string;
-  marks?: number;
-  files: AssignmentFile[];
+  marks: number;
+  files?: { id: string; name: string; url: string }[];
+}
+
+interface SubmittedFile {
+  file_name: string;
+  original_name: string;
+  uploaded_at: string;
 }
 
 interface Submission {
-  id: string;
-  file_url: string;
   attempt_number: number;
-  created_at: string;
+  files: SubmittedFile[];
 }
 
 export default function AssignmentSubmissionPage() {
   const { id: courseId, assignmentId } = useParams();
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
   const [assignment, setAssignment] = useState<Assignment | null>(null);
   const [submissions, setSubmissions] = useState<Submission[]>([]);
   const [selectedAttempt, setSelectedAttempt] = useState<number>(1);
   const [files, setFiles] = useState<File[]>([]);
-  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showUploadSection, setShowUploadSection] = useState(true); // Important: first time true
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    fetchAssignment();
+    fetchAssignmentDetails();
     fetchSubmissions();
-  }, [assignmentId]);
+  }, []);
 
-  const fetchAssignment = async () => {
+  const fetchAssignmentDetails = async () => {
     try {
       const token = localStorage.getItem('token');
       const res = await axios.get(`http://localhost:5001/api/assignments/${assignmentId}`, {
@@ -50,7 +49,7 @@ export default function AssignmentSubmissionPage() {
       });
       setAssignment(res.data.assignment);
     } catch (err) {
-      toast.error('Failed to fetch assignment details');
+      toast.error('Failed to fetch assignment');
     }
   };
 
@@ -60,205 +59,222 @@ export default function AssignmentSubmissionPage() {
       const res = await axios.get(`http://localhost:5001/api/assignments/${assignmentId}/submission`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-
-      if (res.data.submissions) {
-        setSubmissions(res.data.submissions);
-        setSelectedAttempt(res.data.submissions.length > 0 ? res.data.submissions[res.data.submissions.length - 1].attempt_number : 1);
+      const data = res.data.submissions || [];
+      setSubmissions(data);
+      if (data.length > 0) {
+        setSelectedAttempt(data[data.length - 1].attempt_number);
+        setShowUploadSection(false);
+      } else {
+        setSelectedAttempt(1);
+        setShowUploadSection(true); // if no submission yet
       }
     } catch (err) {
-      console.error('Error fetching submissions:', err);
+      toast.error('Failed to fetch submissions');
     }
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
-      setFiles(Array.from(e.target.files));
+      setFiles([...files, ...Array.from(e.target.files)]);
     }
   };
 
+  const handleRemoveFile = (index: number) => {
+    setFiles(files.filter((_, i) => i !== index));
+  };
+
   const handleSubmit = async () => {
-    if (files.length === 0) {
-      toast.error('Please select at least one file.');
-      return;
-    }
+    if (files.length === 0) return toast.error('Please select files');
+
+    setIsSubmitting(true);
+    const formData = new FormData();
+    files.forEach((file) => formData.append('files', file));
 
     try {
       const token = localStorage.getItem('token');
-      const formData = new FormData();
-      files.forEach(file => formData.append('files', file)); // 🔥 Correct multiple file append
-
-      await axios.post(`http://localhost:5001/api/assignments/${assignmentId}/submit`, formData, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'multipart/form-data',
-        },
-      });
-
-      toast.success('Files submitted successfully!');
+      await axios.post(
+        `http://localhost:5001/api/assignments/${assignmentId}/submit`,
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'multipart/form-data',
+          },
+        }
+      );
+      toast.success('Assignment submitted!');
+      setShowUploadSection(false);
       setFiles([]);
-      setIsSubmitting(false);
       await fetchSubmissions();
     } catch (err) {
-      console.error('Error submitting files:', err);
-      toast.error('Submission failed.');
+      toast.error('Submission failed');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   const handleNewAttempt = () => {
-    setSelectedAttempt(selectedAttempt + 1);
+    setShowUploadSection(true);
     setFiles([]);
-    setIsSubmitting(true);
+    const nextAttempt = Math.max(...submissions.map(s => s.attempt_number), 0) + 1;
+    setSelectedAttempt(nextAttempt);
   };
 
   const handleCancel = () => {
+    if (submissions.length > 0) {
+      const latest = submissions[submissions.length - 1].attempt_number;
+      setSelectedAttempt(latest);
+    } else {
+      setSelectedAttempt(1);
+    }
+    setShowUploadSection(false);
     setFiles([]);
-    setIsSubmitting(false);
   };
 
-  const currentAttemptFiles = submissions.filter(s => s.attempt_number === selectedAttempt);
+  const handleChooseFilesClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const currentAttemptFiles = submissions.find(s => s.attempt_number === selectedAttempt)?.files || [];
 
   return (
-    <div className="p-8 space-y-8">
-      {/* Header */}
-      <div className="flex justify-between items-start">
+    <div className="mt-1 space-y-8">
+      {/* Assignment Header */}
+      <div className="flex justify-between">
         <div>
           <h1 className="text-3xl font-bold">{assignment?.title}</h1>
-          <p className="text-gray-500 text-sm mt-1">
-            Due: {assignment?.due_date ? new Date(assignment.due_date).toLocaleString() : ''}
-          </p>
+          <p className="text-gray-500 text-sm">Due: {assignment?.due_date ? new Date(assignment.due_date).toLocaleString() : ''}</p>
         </div>
-        <div className="text-right">
-          <p className="font-bold text-gray-800">{assignment?.marks} Points Possible</p>
-        </div>
+        <p className="font-bold text-gray-700">{assignment?.marks} Points Possible</p>
       </div>
 
-      {/* Attempt Selector */}
+      {/* Attempt Dropdown */}
       <div className="flex items-center gap-4">
         <select
           value={selectedAttempt}
-          onChange={(e) => setSelectedAttempt(parseInt(e.target.value))}
-          className="border px-4 py-2 rounded cursor-pointer"
+          onChange={(e) => setSelectedAttempt(Number(e.target.value))}
+          className="border rounded px-4 py-2 cursor-pointer"
         >
-          {Array.from(new Set(submissions.map(s => s.attempt_number))).sort((a, b) => a - b).map(attempt => (
-            <option key={attempt} value={attempt}>
-              Attempt {attempt}
-            </option>
+          {Array.from(new Set([
+            ...submissions.map(s => s.attempt_number),
+            ...(showUploadSection ? [selectedAttempt] : [])
+          ])).sort((a, b) => a - b).map((num) => (
+            <option key={num} value={num}>Attempt {num}</option>
           ))}
         </select>
-        <span className="text-green-600 font-semibold">In Progress</span>
+        {submissions.length > 0 ? (
+          <span className="text-green-600 font-semibold">In Progress</span>
+        ) : (
+          <span className="text-blue-600 font-semibold">Submit Your Assignment</span>
+        )}
       </div>
 
       {/* Assignment Details */}
       <div>
-        <h2 className="font-semibold text-lg mb-2">Details</h2>
+        <h2 className="text-lg font-semibold">Details</h2>
         <p className="text-gray-700">{assignment?.description}</p>
-
-        {assignment?.files?.length > 0 && (
-          <div className="mt-4">
-            <h3 className="font-semibold mb-2">Attached Files:</h3>
-            <ul className="list-disc list-inside text-blue-600">
-              {assignment.files.map(file => (
-                <li key={file.id}>
-                  <a
-                    href={`http://localhost:5001${file.url}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="underline cursor-pointer"
-                  >
-                    {file.name}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
       </div>
 
-      {/* Upload Section */}
-      {isSubmitting ? (
-        <div className="flex flex-col space-y-4">
-          <div className="flex items-center gap-4">
-            <input
-              type="file"
-              multiple
-              onChange={handleFileChange}
-              ref={fileInputRef}
-              className="block text-sm text-gray-900 file:mr-4 file:py-2 file:px-4
-                        file:rounded-full file:border-0
-                        file:text-sm file:font-semibold
-                        file:bg-indigo-50 file:text-indigo-700
-                        hover:file:bg-indigo-100"
-            />
-            <div className="flex flex-wrap gap-2">
-              {files.map((file, idx) => (
-                <span key={idx} className="text-sm text-gray-700 truncate max-w-[150px]">
-                  {file.name}
-                </span>
-              ))}
-            </div>
-          </div>
+      {/* Instructor Files */}
+      {assignment?.files?.length > 0 && (
+        <div>
+          <h2 className="text-lg font-semibold mt-4">Files Provided:</h2>
+          {assignment.files.map((f) => (
+            <a
+              key={f.id}
+              href={`http://localhost:5001${f.url}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-600 underline block mt-1"
+            >
+              📁 {f.name}
+            </a>
+          ))}
+        </div>
+      )}
 
-          <div className="flex gap-4">
+      {/* Upload / Submission Section */}
+      {showUploadSection ? (
+        <div className="space-y-4">
+          <button
+            type="button"
+            onClick={handleChooseFilesClick}
+            className="bg-blue-100 cursor-pointer text-blue-700 px-6 py-2 rounded-md font-semibold hover:bg-blue-200"
+          >
+            Choose Files
+          </button>
+          <input ref={fileInputRef} type="file" multiple className="hidden" onChange={handleFileChange} />
+
+          {files.map((file, i) => (
+            <div key={i} className="flex justify-between items-center text-sm border px-3 py-1 rounded">
+              <span>{file.name}</span>
+              <FaTimes onClick={() => handleRemoveFile(i)} className="text-red-500 cursor-pointer" />
+            </div>
+          ))}
+
+          <div className="flex gap-4 pt-2">
             <button
               onClick={handleSubmit}
-              className="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 cursor-pointer"
+              disabled={isSubmitting}
+              className="bg-blue-500 cursor-pointer text-white px-6 py-2 rounded hover:bg-blue-600 disabled:bg-blue-300"
             >
-              Submit
+              {isSubmitting ? 'Submitting...' : 'Submit Assignment'}
             </button>
-
-            <button
-              onClick={handleCancel}
-              className="border border-gray-400 text-gray-600 px-4 py-2 rounded hover:bg-gray-100 cursor-pointer"
-            >
-              Cancel
-            </button>
+            {submissions.length > 0 && (
+              <button
+                onClick={handleCancel}
+                className="bg-gray-500 cursor-pointer text-white px-6 py-2 rounded hover:bg-gray-600"
+              >
+                Cancel
+              </button>
+            )}
           </div>
         </div>
       ) : (
-        <button
-          onClick={handleNewAttempt}
-          className="border border-gray-500 text-gray-700 px-6 py-2 rounded hover:bg-gray-100 cursor-pointer"
-        >
-          New Attempt
-        </button>
-      )}
+        <>
+          {/* Show submitted files after submission */}
+          {currentAttemptFiles.length > 0 && (
+            <div>
+              <h2 className="text-xl font-semibold mt-6 mb-2">Submitted Files:</h2>
+              <div className="border rounded">
+                <table className="w-full">
+                  <thead className="bg-gray-100">
+                    <tr>
+                      <th className="text-left px-4 py-2">File</th>
+                      <th className="text-left px-4 py-2">Uploaded At</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {currentAttemptFiles.map((f, i) => (
+                      <tr key={i} className="border-t">
+                        <td className="px-4 py-2">
+                          <a
+                            href={`http://localhost:5001/uploads/student-submissions/${f.file_name}`}
+                            target="_blank"
+                            className="text-blue-600 underline"
+                          >
+                            {f.original_name}
+                          </a>
+                        </td>
+                        <td className="px-4 py-2">
+                          {new Date(f.uploaded_at).toLocaleString()}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
 
-      {/* Submitted Files */}
-      {currentAttemptFiles.length > 0 && (
-        <div className="mt-10">
-          <h2 className="text-xl font-bold mb-4">Submitted Files:</h2>
-          <table className="w-full border">
-            <thead>
-              <tr className="bg-gray-100">
-                <th className="text-left px-4 py-2 border">File</th>
-                <th className="text-left px-4 py-2 border">Uploaded At</th>
-              </tr>
-            </thead>
-            <tbody>
-              {currentAttemptFiles.map((file, idx) => (
-                <tr key={idx}>
-                  <td className="px-4 py-2 border">
-                    {file.file_url ? (
-                      <a
-                        href={`http://localhost:5001${file.file_url}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-blue-600 underline cursor-pointer"
-                      >
-                        {file.file_url.split('/').pop()}
-                      </a>
-                    ) : (
-                      <span className="text-gray-400 italic">No File</span>
-                    )}
-                  </td>
-                  <td className="px-4 py-2 border">
-                    {file.created_at ? new Date(file.created_at).toLocaleString() : 'Unknown'}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+          {/* New Attempt Button */}
+          <button
+            onClick={handleNewAttempt}
+            className="bg-blue-500 cursor-pointer text-white px-6 py-2 rounded hover:bg-blue-600 mt-6"
+          >
+            New Attempt
+          </button>
+        </>
       )}
     </div>
   );

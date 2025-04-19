@@ -84,7 +84,7 @@ export default function StudentFilesPage() {
   );
 
   return (
-    <div className="p-6 -mt-3">
+    <div className="mt-1">
       {/* 🔷 Breadcrumb Header */}
       <div className="text-xl font-semibold text-blue-700 mb-2">
         <span

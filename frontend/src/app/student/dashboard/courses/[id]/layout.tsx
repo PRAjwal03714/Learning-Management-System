@@ -4,14 +4,14 @@ import Link from 'next/link';
 import { useParams, usePathname } from 'next/navigation';
 import CourseChat from '@/components/CourseChat';
 
-
 const navItems = [
   { name: 'Home', path: '' },
   { name: 'Assignments', path: 'assignments' },
+  { name: 'Grades', path: 'grades' },
+
   { name: 'Announcements', path: 'announcements' },
   { name: 'Files', path: 'files' },
   { name: 'Chat', path: 'chat' },
-
 ];
 
 export default function CourseLayout({ children }: { children: React.ReactNode }) {
@@ -21,7 +21,8 @@ export default function CourseLayout({ children }: { children: React.ReactNode }
   const isActive = (path: string) => {
     const basePath = `/student/dashboard/courses/${id}`;
     if (path === '') return pathname === basePath;
-    return pathname === `${basePath}/${path}`;
+    
+    return pathname.includes(`${basePath}/${path}`);
   };
 
   return (
