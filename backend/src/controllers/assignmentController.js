@@ -236,7 +236,7 @@ exports.getAllInstructorAssignments = async (req, res) => {
   const instructorId = req.user.id;
   try {
     const result = await pool.query(`
-      SELECT a.*, c.title as course_title
+      SELECT a.*, a.title as course_title
       FROM assignments a
       JOIN courses c ON a.course_id = c.id
       WHERE c.instructor_id = $1
@@ -282,7 +282,7 @@ exports.getStudentAssignments = async (req, res) => {
   const studentId = req.user.id;
   try {
     const result = await pool.query(`
-      SELECT a.*, c.title as course_title
+      SELECT a.*, a.title as course_title
       FROM assignments a
       JOIN courses c ON a.course_id = c.id
       JOIN student_courses sc ON c.id = sc.course_id

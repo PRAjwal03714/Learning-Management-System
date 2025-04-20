@@ -27,6 +27,7 @@ const ViewAnnouncements = ({ courseId }: Props) => {
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
   const [course, setCourse] = useState<Course | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
+  const [searchQuery, setSearchQuery] = useState<string>(''); // ✅ Search state
   const router = useRouter();
 
   const fetchAnnouncements = async () => {
@@ -36,7 +37,7 @@ const ViewAnnouncements = ({ courseId }: Props) => {
       });
       setAnnouncements(res.data.announcements);
     } catch (err) {
-        console.log(err)
+      console.log(err);
       toast.error('Failed to fetch announcements');
     } finally {
       setLoading(false);
@@ -68,10 +69,16 @@ const ViewAnnouncements = ({ courseId }: Props) => {
       toast.success("Announcement deleted");
       fetchAnnouncements();
     } catch (err) {
-        console.log(err)
+      console.log(err);
       toast.error("Delete failed");
     }
   };
+
+  // ✅ Filtered announcements based on search
+  const filteredAnnouncements = announcements.filter((a) =>
+    a.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    a.content.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   if (loading) return <p className="text-gray-600">Loading announcements...</p>;
 
@@ -79,8 +86,8 @@ const ViewAnnouncements = ({ courseId }: Props) => {
     <div className="p-6">
       {course && (
         <h1 className="text-xl font-semibold text-gray-700 mb-6">
-      </h1>
-      
+          {/* You can display course name here if you want */}
+        </h1>
       )}
 
       {/* Header Row */}
@@ -91,59 +98,63 @@ const ViewAnnouncements = ({ courseId }: Props) => {
           </select>
           <input
             type="text"
-            placeholder="Search..."
+            placeholder="Search announcements..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
             className="border border-gray-300 rounded px-3 py-1 text-sm"
           />
         </div>
-        <button className="text-red-600 text-sm cursor-pointer hover:underline">
-          External Feeds
-        </button>
+        
       </div>
 
       {/* Announcement Cards */}
       <div className="space-y-4">
-        {announcements.map((a) => (
-          <div
-            key={a.id}
-            className="flex items-start justify-between border-t pt-4 pb-3 hover:bg-gray-50"
-          >
-            <div className="flex items-start gap-4">
-              <div className="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center text-white font-bold text-sm">
-                {a.title[0].toUpperCase()}
+        {filteredAnnouncements.length === 0 ? (
+          <p className="text-gray-500">No announcements found</p>
+        ) : (
+          filteredAnnouncements.map((a) => (
+            <div
+              key={a.id}
+              className="flex items-start justify-between border-t pt-4 pb-3 hover:bg-gray-50"
+            >
+              <div className="flex items-start gap-4">
+                <div className="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center text-white font-bold text-sm">
+                  {a.title[0].toUpperCase()}
+                </div>
+                <div>
+                  <h2 className="font-semibold text-gray-800 text-base">
+                    {a.title}
+                  </h2>
+                  <p className="text-sm text-gray-600 mt-1 line-clamp-2 max-w-3xl">
+                    {a.content}
+                  </p>
+                </div>
               </div>
-              <div>
-                <h2 className="font-semibold text-gray-800 text-base">
-                  {a.title}
-                </h2>
-                <p className="text-sm text-gray-600 mt-1 line-clamp-2 max-w-3xl">
-                  {a.content}
-                </p>
+
+              <div className="flex flex-col items-end text-sm text-gray-500 whitespace-nowrap">
+                <span>Posted on:</span>
+                <span>{new Date(a.created_at).toLocaleString()}</span>
+
+                <div className="flex gap-2 mt-2">
+                  <button
+                    onClick={() =>
+                      router.push(`/instructor/dashboard/courses/${courseId}/announcements/${a.id}/edit`)
+                    }
+                    className="text-blue-600 text-sm cursor-pointer"
+                  >
+                    ✏️ Edit
+                  </button>
+                  <button
+                    onClick={() => handleDelete(a.id)}
+                    className="text-red-600 text-sm cursor-pointer"
+                  >
+                    🗑 Delete
+                  </button>
+                </div>
               </div>
             </div>
-
-            <div className="flex flex-col items-end text-sm text-gray-500 whitespace-nowrap">
-              <span>Posted on:</span>
-              <span>{new Date(a.created_at).toLocaleString()}</span>
-
-              <div className="flex gap-2 mt-2">
-                <button
-                  onClick={() =>
-                    router.push(`/instructor/dashboard/courses/${courseId}/announcements/${a.id}/edit`)
-                  }
-                  className="text-blue-600 text-sm cursor-pointer"
-                >
-                  ✏️ Edit
-                </button>
-                <button
-                  onClick={() => handleDelete(a.id)}
-                  className="text-red-600 text-sm cursor-pointer"
-                >
-                  🗑 Delete
-                </button>
-              </div>
-            </div>
-          </div>
-        ))}
+          ))
+        )}
       </div>
     </div>
   );

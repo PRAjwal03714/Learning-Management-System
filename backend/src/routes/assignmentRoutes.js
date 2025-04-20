@@ -26,6 +26,7 @@ const {
 // 🔵 Published assignments (for students)
 router.get('/student/grades/:courseId', authMiddleware, getStudentGradesByCourse);
 router.get('/published/:courseId', authMiddleware, getPublishedAssignments);
+router.get('/student', authMiddleware, getStudentAssignments); // <-- ⭐ important
 
 // 🔵 Assignment management (Instructor)
 router.post('/create', authMiddleware, uploadAssignment.array('files'), createAssignment);
@@ -46,6 +47,7 @@ router.get('/:assignmentId/submissions', authMiddleware, getAssignmentSubmission
 router.post('/submission/:submissionId/grade', authMiddleware, gradeSubmission);
 
 // 🔵 Assignment Details (keep LAST always)
+
 router.get('/:assignmentId', authMiddleware, getAssignmentById);
 router.put('/:assignmentId', authMiddleware, uploadAssignment.array('files'), updateAssignment);
 router.delete('/:assignmentId', authMiddleware, deleteAssignment);
