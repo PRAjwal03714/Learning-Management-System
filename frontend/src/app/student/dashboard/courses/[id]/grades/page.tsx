@@ -46,7 +46,7 @@ export default function StudentGradesPage() {
   const fetchCourses = async () => {
     try {
       const token = localStorage.getItem('token');
-      const res = await axios.get(`http://localhost:5001/api/courses/my-registered-courses`, {
+      const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/courses/my-registered-courses`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const fetchedCourses: Course[] = res.data.courses;
@@ -68,7 +68,7 @@ export default function StudentGradesPage() {
   const fetchGrades = async (courseId: string) => {
     try {
       const token = localStorage.getItem('token');
-      const res = await axios.get(`http://localhost:5001/api/assignments/student/grades/${courseId}`, {
+      const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/assignments/student/grades/${courseId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 

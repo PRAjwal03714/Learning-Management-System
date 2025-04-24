@@ -22,7 +22,7 @@ export default function OTPVerificationPage() {
 
     setLoading(true);
     try {
-      const res = await fetch('http://localhost:5001/api/auth/send-otp-email', {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/send-otp-email`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email }),
@@ -46,7 +46,7 @@ export default function OTPVerificationPage() {
   const verifyOtp = async () => {
     setLoading(true);
     try {
-      const res = await fetch('http://localhost:5001/api/auth/verify-otp-email', {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/verify-otp-email`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, otp }),

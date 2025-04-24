@@ -12,7 +12,7 @@ export default function ResetTokenClient({ token }: { token: string }) {
   const handleReset = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const res = await fetch(`http://localhost:5001/api/auth/reset-password/${token}`, {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/reset-password/${token}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, newPassword: password }),

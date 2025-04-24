@@ -39,7 +39,7 @@ export default function StudentProfilePage() {
 
   const fetchProfile = async () => {
     try {
-      const res = await axios.get('http://localhost:5001/api/student/profile/me', {
+      const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/student/profile/me`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = res.data;
@@ -63,7 +63,7 @@ export default function StudentProfilePage() {
         formData.append('profile_picture', selectedFile);
       }
 
-      await axios.put('http://localhost:5001/api/student/profile/update', formData, {
+      await axios.put(`${process.env.NEXT_PUBLIC_API_URL}/api/student/profile/update`, formData, {
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'multipart/form-data',
@@ -80,7 +80,7 @@ export default function StudentProfilePage() {
   const handleRemovePhoto = async () => {
     try {
       await axios.put(
-        'http://localhost:5001/api/student/profile/remove-photo',
+        `${process.env.NEXT_PUBLIC_API_URL}/api/student/profile/remove-photo`,
         {},
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -119,7 +119,7 @@ export default function StudentProfilePage() {
 
   const imageSrc =
     profilePic && profilePic.startsWith('/uploads')
-      ? `http://localhost:5001${profilePic}`
+      ? `${process.env.NEXT_PUBLIC_API_URL}${profilePic}`
       : profilePic || '/placeholder.png';
 
   return (

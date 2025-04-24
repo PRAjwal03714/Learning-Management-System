@@ -38,10 +38,10 @@ export default function StudentAssignmentsPage() {
     const token = localStorage.getItem('token');
     try {
       const [courseRes, assignmentsRes] = await Promise.all([
-        axios.get(`http://localhost:5001/api/courses/${courseId}`, {
+        axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/courses/${courseId}`, {
           headers: { Authorization: `Bearer ${token}` },
         }),
-        axios.get(`http://localhost:5001/api/assignments/published/${courseId}`, {
+        axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/assignments/published/${courseId}`, {
           headers: { Authorization: `Bearer ${token}` },
         }),
       ]);
@@ -132,7 +132,7 @@ export default function StudentAssignmentsPage() {
                     {a.files.map((file) => (
                       <a
                         key={file.id}
-                        href={`http://localhost:5001${file.url}`}
+                        href={`${process.env.NEXT_PUBLIC_API_URL}${file.url}`}
                         target="_blank"
                         rel="noopener noreferrer"
                         onClick={(e) => e.stopPropagation()} // prevent card click

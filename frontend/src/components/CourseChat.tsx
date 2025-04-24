@@ -97,7 +97,7 @@ export default function CourseChat() {
     const setOnlineStatus = async () => {
       try {
         await axios.post(
-          'http://localhost:5001/api/chat/status',
+          `${process.env.NEXT_PUBLIC_API_URL}/api/chat/status`,
           { status: 'online' },
           {
             headers: { Authorization: `Bearer ${token}` }
@@ -116,7 +116,7 @@ export default function CourseChat() {
       if (document.hidden) {
         // User left the page
         axios.post(
-          'http://localhost:5001/api/chat/status',
+          `${process.env.NEXT_PUBLIC_API_URL}/api/chat/status`,
           { status: 'offline' },
           {
             headers: { Authorization: `Bearer ${token}` }
@@ -125,7 +125,7 @@ export default function CourseChat() {
       } else {
         // User returned to the page
         axios.post(
-          'http://localhost:5001/api/chat/status',
+          `${process.env.NEXT_PUBLIC_API_URL}/api/chat/status`,
           { status: 'online' },
           {
             headers: { Authorization: `Bearer ${token}` }
@@ -138,7 +138,7 @@ export default function CourseChat() {
     const handleFocusChange = () => {
       if (document.hasFocus()) {
         axios.post(
-          'http://localhost:5001/api/chat/status',
+          `${process.env.NEXT_PUBLIC_API_URL}/api/chat/status`,
           { status: 'online' },
           {
             headers: { Authorization: `Bearer ${token}` }
@@ -157,7 +157,7 @@ export default function CourseChat() {
       window.removeEventListener('focus', handleFocusChange);
       
       axios.post(
-        'http://localhost:5001/api/chat/status',
+        `${process.env.NEXT_PUBLIC_API_URL}/api/chat/status`,
         { status: 'offline' },
         {
           headers: { Authorization: `Bearer ${token}` }
@@ -174,11 +174,11 @@ export default function CourseChat() {
       console.log('Fetching messages:', {
         courseId,
         selectedRoom,
-        url: `http://localhost:5001/api/chat/${courseId}/messages${selectedRoom === 'group' ? '' : `/${selectedRoom}`}`
+        url: `${process.env.NEXT_PUBLIC_API_URL}/api/chat/${courseId}/messages${selectedRoom === 'group' ? '' : `/${selectedRoom}`}`
       });
 
       const response = await axios.get(
-        `http://localhost:5001/api/chat/${courseId}/messages${selectedRoom === 'group' ? '' : `/${selectedRoom}`}`,
+        `${process.env.NEXT_PUBLIC_API_URL}/api/chat/${courseId}/messages${selectedRoom === 'group' ? '' : `/${selectedRoom}`}`,
         {
           headers: { 
             Authorization: `Bearer ${token}`,
@@ -219,11 +219,11 @@ export default function CourseChat() {
     try {
       console.log('Fetching users:', {
         courseId,
-        url: `http://localhost:5001/api/chat/${courseId}/users`
+        url: `${process.env.NEXT_PUBLIC_API_URL}/api/chat/${courseId}/users`
       });
 
       const response = await axios.get(
-        `http://localhost:5001/api/chat/${courseId}/users`,
+        `${process.env.NEXT_PUBLIC_API_URL}/api/chat/${courseId}/users`,
         {
           headers: { 
             Authorization: `Bearer ${token}`,
@@ -252,7 +252,7 @@ export default function CourseChat() {
 
     try {
       await axios.post(
-        `http://localhost:5001/api/chat/${courseId}/messages${selectedRoom === 'group' ? '' : `/${selectedRoom}`}`,
+        `${process.env.NEXT_PUBLIC_API_URL}/api/chat/${courseId}/messages${selectedRoom === 'group' ? '' : `/${selectedRoom}`}`,
         { content: newMessage },
         {
           headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
@@ -327,7 +327,7 @@ export default function CourseChat() {
                 <div className="relative">
                   {user.profile_picture ? (
                     <img 
-                      src={`http://localhost:5001${user.profile_picture}`}
+                      src={`${process.env.NEXT_PUBLIC_API_URL}${user.profile_picture}`}
                       alt={user.name}
                       className={`w-8 h-8 rounded-full object-cover`}
                     />
@@ -381,7 +381,7 @@ export default function CourseChat() {
                 {message.profile_picture ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img 
-                    src={`http://localhost:5001${message.profile_picture}`}
+                    src={`${process.env.NEXT_PUBLIC_API_URL}${message.profile_picture}`}
                     alt={message.sender_name}
                     className="w-6 h-6 rounded-full object-cover mt-1"
                   />

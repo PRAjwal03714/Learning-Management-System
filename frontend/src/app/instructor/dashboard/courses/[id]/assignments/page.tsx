@@ -20,7 +20,7 @@ export default function AssignmentsPage() {
     const fetchCourse = async () => {
       try {
         const token = localStorage.getItem('token');
-        const res = await axios.get(`http://localhost:5001/api/courses/${courseId}`, {
+        const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/courses/${courseId}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         setCourse(res.data.course);

@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 
+
 export default function AdminLogin() {
   const router = useRouter();
   const [form, setForm] = useState({ email: '', password: '' });
@@ -13,14 +14,16 @@ export default function AdminLogin() {
     setForm((prev) => ({ ...prev, [id]: value }));
   };
 
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMsg('');
     setSuccessMsg('');
+    const baseUrl = process.env.NEXT_PUBLIC_API_URL;
 
     try {
       // ❗ Replace this URL with actual backend endpoint later
-      const res = await fetch('http://localhost:5001/api/auth/admin-login', {
+      const res = await fetch(`${baseUrl}/api/auth/admin-login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(form),

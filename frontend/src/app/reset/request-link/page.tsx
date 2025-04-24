@@ -7,7 +7,7 @@ export default function RequestResetLinkPage() {
   const [msg, setMsg] = useState('');
 
   const handleRequest = async () => {
-    const res = await fetch('http://localhost:5001/api/auth/request-password-reset', {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/request-password-reset`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email }),

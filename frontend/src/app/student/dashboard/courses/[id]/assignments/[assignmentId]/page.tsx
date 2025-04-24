@@ -44,7 +44,7 @@ export default function AssignmentSubmissionPage() {
   const fetchAssignmentDetails = async () => {
     try {
       const token = localStorage.getItem('token');
-      const res = await axios.get(`http://localhost:5001/api/assignments/${assignmentId}`, {
+      const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/assignments/${assignmentId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setAssignment(res.data.assignment);
@@ -56,7 +56,7 @@ export default function AssignmentSubmissionPage() {
   const fetchSubmissions = async () => {
     try {
       const token = localStorage.getItem('token');
-      const res = await axios.get(`http://localhost:5001/api/assignments/${assignmentId}/submission`, {
+      const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/assignments/${assignmentId}/submission`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = res.data.submissions || [];
@@ -93,7 +93,7 @@ export default function AssignmentSubmissionPage() {
     try {
       const token = localStorage.getItem('token');
       await axios.post(
-        `http://localhost:5001/api/assignments/${assignmentId}/submit`,
+        `${process.env.NEXT_PUBLIC_API_URL}/api/assignments/${assignmentId}/submit`,
         formData,
         {
           headers: {
@@ -182,7 +182,7 @@ export default function AssignmentSubmissionPage() {
           {assignment.files.map((f) => (
             <a
               key={f.id}
-              href={`http://localhost:5001${f.url}`}
+              href={`${process.env.NEXT_PUBLIC_API_URL}${f.url}`}
               target="_blank"
               rel="noopener noreferrer"
               className="text-blue-600 underline block mt-1"
@@ -249,7 +249,7 @@ export default function AssignmentSubmissionPage() {
                       <tr key={i} className="border-t">
                         <td className="px-4 py-2">
                           <a
-                            href={`http://localhost:5001/uploads/student-submissions/${f.file_name}`}
+                            href={`${process.env.NEXT_PUBLIC_API_URL}/uploads/student-submissions/${f.file_name}`}
                             target="_blank"
                             className="text-blue-600 underline"
                           >

@@ -2,6 +2,7 @@
 'use client';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect } from 'react';
+const baseUrl = process.env.NEXT_PUBLIC_API_URL;
 
 export default function DuoCallbackHandler() {
   const router = useRouter();
@@ -20,7 +21,7 @@ export default function DuoCallbackHandler() {
       // If we have duo_code and state, verify with backend
       const verifyDuo = async () => {
         try {
-          const res = await fetch(`http://localhost:5001/api/auth/duo/callback?duo_code=${duo_code}&state=${state}`);
+          const res = await fetch(`${baseUrl}/api/auth/duo/callback?duo_code=${duo_code}&state=${state}`);
           const data = await res.json();
 
           if (res.ok && data.token) {

@@ -1,5 +1,8 @@
 const nodemailer = require("nodemailer");
 
+const baseUrl = process.env.NEXT_PUBLIC_API_URL;
+
+
 const transporter = nodemailer.createTransport({
   service: process.env.EMAIL_SERVICE,
   auth: {
@@ -9,7 +12,7 @@ const transporter = nodemailer.createTransport({
 });
 
 exports.sendResetEmail = async (email, token) => {
-  const resetLink = `http://localhost:5001/api/auth/reset-password/${token}`;
+  const resetLink = `${baseUrl}/api/auth/reset-password/${token}`;
 
   const mailOptions = {
     from: process.env.EMAIL_USER,

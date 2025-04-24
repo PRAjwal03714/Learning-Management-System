@@ -22,7 +22,7 @@ export default function CourseHomePage() {
 
   useEffect(() => {
     const fetchCourse = async () => {
-      const res = await fetch(`http://localhost:5001/api/courses/${id}`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/courses/${id}`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem('token')}`,
         },

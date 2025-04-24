@@ -17,7 +17,7 @@ export default function StudentCourseDrawer({ onClose }: { onClose: () => void }
   useEffect(() => {
     const fetchMyCourses = async () => {
       const token=localStorage.getItem('token')
-      const res = await fetch('http://localhost:5001/api/courses/my-registered-courses', {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/courses/my-registered-courses`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },

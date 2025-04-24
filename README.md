@@ -50,7 +50,7 @@ DATABASE_URL=postgresql://studymate:4wBnfzlazVmalsq0PbS7WCQhXiQzwEj1@dpg-cv2g5jd
 DUO_CLIENT_ID=your-duo-client-id
 DUO_CLIENT_SECRET=your-duo-client-secret
 DUO_API_HOSTNAME=api-xxxxxxx.duosecurity.com
-DUO_REDIRECT_URI=http://localhost:5001/api/auth/duo/callback
+DUO_REDIRECT_URI=${process.env.NEXT_PUBLIC_API_URL}/api/auth/duo/callback
 ```
 
 ### 4️⃣ Run the Server

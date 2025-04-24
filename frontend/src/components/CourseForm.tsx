@@ -28,7 +28,7 @@ export default function CreateCoursePage() {
 
     try {
       const token=localStorage.getItem('token')
-      const res = await fetch('http://localhost:5001/api/courses/create-course', {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/courses/create-course`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

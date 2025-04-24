@@ -18,7 +18,7 @@ export default function Login() {
     setErrorMsg('');
 
     try {
-      const res = await fetch('http://localhost:5001/api/auth/login', {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(form),
@@ -27,7 +27,7 @@ export default function Login() {
       const data = await res.json();
 
       if (res.ok && data.duoRequired) {
-        const duoRes = await fetch('http://localhost:5001/api/auth/duo/auth', {
+        const duoRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/duo/auth`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ username: form.email }),
@@ -110,13 +110,13 @@ export default function Login() {
       {/* OAuth Buttons */}
       <div className="flex justify-between">
         <a
-          href="http://localhost:5001/api/auth/facebook"
-          className="flex items-center justify-center w-1/2 mr-2 px-2 py-2 bg-blue-600 text-white text-sm rounded hover:bg-blue-700"
+href={`${process.env.NEXT_PUBLIC_API_URL}/api/auth/facebook`}
+className="flex items-center justify-center w-1/2 mr-2 px-2 py-2 bg-blue-600 text-white text-sm rounded hover:bg-blue-700"
         >
           <span className="font-semibold">f</span>&nbsp;Facebook
         </a>
         <a
-          href="http://localhost:5001/api/auth/google"
+          href={`${process.env.NEXT_PUBLIC_API_URL}/api/auth/google`}
           className="flex items-center justify-center w-1/2 ml-2 px-2 py-2 border border-gray-300 text-sm rounded hover:bg-gray-100"
         >
           <img src="/gg1.png" alt="Google" className="w-5 h-5 mr-2" />

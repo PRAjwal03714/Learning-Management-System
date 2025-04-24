@@ -62,7 +62,7 @@ export default function CreateAssignment({ courseId }: { courseId: string }) {
     files.forEach((file) => formData.append('files', file));
 
     try {
-      await axios.post('http://localhost:5001/api/assignments/create', formData, {
+      await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/assignments/create`, formData, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem('token')}`,
           'Content-Type': 'multipart/form-data',

@@ -21,7 +21,7 @@ export default function AllInstructorAssignmentsPage() {
     const fetchAssignments = async () => {
       try {
         const token = localStorage.getItem('token');
-        const res = await axios.get('http://localhost:5001/api/assignments/all', {
+        const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/assignments/all`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         setAssignments(res.data.assignments);

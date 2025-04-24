@@ -16,7 +16,7 @@ const EditAnnouncementPage = () => {
   useEffect(() => {
     const fetchAnnouncement = async () => {
       try {
-        const res = await axios.get(`http://localhost:5001/api/announcements/${announcementId}`, {
+        const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/announcements/${announcementId}`, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem('token')}`,
           },
@@ -38,7 +38,7 @@ const EditAnnouncementPage = () => {
   const handleUpdate = async () => {
     try {
       await axios.put(
-        `http://localhost:5001/api/announcements/${announcementId}`,
+        `${process.env.NEXT_PUBLIC_API_URL}/api/announcements/${announcementId}`,
         { title, content },
         {
           headers: {

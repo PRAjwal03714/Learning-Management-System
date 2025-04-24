@@ -20,7 +20,7 @@ export default function InstructorLogin() {
     setSuccessMsg('');
 
     try {
-      const res = await fetch('http://localhost:5001/api/auth/instructor-login', {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/instructor-login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(form),

@@ -35,7 +35,7 @@ export default function InstructorAssignmentCalendar() {
     const token=localStorage.getItem('token')
 
     axios
-      .get('http://localhost:5001/api/assignments/all', {
+      .get(`${process.env.NEXT_PUBLIC_API_URL}/api/assignments/all`, {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then((res) => {

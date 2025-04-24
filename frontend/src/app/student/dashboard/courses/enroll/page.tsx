@@ -33,7 +33,7 @@ export default function EnrollCoursesPage() {
 
   const fetchCourses = async () => {
     try {
-      const res = await axios.get('http://localhost:5001/api/courses/available', {
+      const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/courses/available`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const fetchedCourses: Course[] = res.data.courses.map((c: any) => ({
@@ -48,7 +48,7 @@ export default function EnrollCoursesPage() {
 
   const fetchRegisteredCourses = async () => {
     try {
-      const res = await axios.get('http://localhost:5001/api/courses/my-registered-courses', {
+      const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/courses/my-registered-courses`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -71,7 +71,7 @@ export default function EnrollCoursesPage() {
   const handleRegister = async (course: Course) => {
     try {
       await axios.post(
-        'http://localhost:5001/api/courses/enroll',
+        `${process.env.NEXT_PUBLIC_API_URL}/api/courses/enroll`,
         { course_id: course.course_id },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -87,7 +87,7 @@ export default function EnrollCoursesPage() {
   const handleUnregister = async (course: Course) => {
     try {
       await axios.post(
-        'http://localhost:5001/api/courses/unenroll',
+        `${process.env.NEXT_PUBLIC_API_URL}/api/courses/unenroll`,
         { course_id: course.course_id },
         { headers: { Authorization: `Bearer ${token}` } }
       );

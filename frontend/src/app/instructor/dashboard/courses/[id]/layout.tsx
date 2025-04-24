@@ -31,7 +31,7 @@ export default function CourseLayout({ children }: { children: React.ReactNode }
 
     try {
       const token = localStorage.getItem('token');
-      await axios.delete(`http://localhost:5001/api/courses/${id}`, {
+      await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/api/courses/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       toast.success('Course deleted');

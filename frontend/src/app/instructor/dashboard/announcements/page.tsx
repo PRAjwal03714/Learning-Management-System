@@ -21,7 +21,7 @@ export default function AllInstructorAnnouncementsPage() {
     const fetchAnnouncements = async () => {
       try {
         const token = localStorage.getItem('token');
-        const res = await axios.get('http://localhost:5001/api/announcements/all', {
+        const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/announcements/all`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         setAnnouncements(res.data.announcements);

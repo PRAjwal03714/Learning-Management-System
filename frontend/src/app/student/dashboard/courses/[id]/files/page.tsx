@@ -25,7 +25,7 @@ interface Course {
   name: string;
 }
 
-const BASE_URL = 'http://localhost:5001';
+const BASE_URL = `${process.env.NEXT_PUBLIC_API_URL}`;
 
 export default function StudentFilesPage() {
   const { id: courseId } = useParams();

@@ -42,7 +42,7 @@ export default function AssignmentGradesPage() {
     try {
       const token = localStorage.getItem('token');
       const res = await axios.get(
-        `http://localhost:5001/api/assignments/course/${courseId}`,
+        `${process.env.NEXT_PUBLIC_API_URL}/api/assignments/course/${courseId}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
       setAssignments(res.data.assignments);
@@ -58,7 +58,7 @@ export default function AssignmentGradesPage() {
     try {
       const token = localStorage.getItem('token');
       const res = await axios.get(
-        `http://localhost:5001/api/assignments/${assignmentId}/submissions`,
+        `${process.env.NEXT_PUBLIC_API_URL}/api/assignments/${assignmentId}/submissions`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
       const newGrades: Record<string, string> = {};
@@ -95,7 +95,7 @@ export default function AssignmentGradesPage() {
     try {
       const token = localStorage.getItem('token');
       await axios.post(
-        `http://localhost:5001/api/assignments/submission/${submissionId}/grade`,
+        `${process.env.NEXT_PUBLIC_API_URL}/api/assignments/submission/${submissionId}/grade`,
         { marks: Number(gradeValue) },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -153,7 +153,7 @@ export default function AssignmentGradesPage() {
                         {submission.files.map((file, index) => (
                           <li key={index}>
                             <a
-                              href={`http://localhost:5001/uploads/student-submissions/${file.file_name}`}
+                              href={`${process.env.NEXT_PUBLIC_API_URL}/uploads/student-submissions/${file.file_name}`}
                               target="_blank"
                               rel="noopener noreferrer"
                               className="text-blue-600 underline"

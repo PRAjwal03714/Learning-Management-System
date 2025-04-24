@@ -19,7 +19,7 @@ export default function SecurityQuestionPage() {
 
     setLoading(true);
     try {
-      const res = await fetch('http://localhost:5001/api/auth/verify-security-question', {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/verify-security-question`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, securityAnswer }),

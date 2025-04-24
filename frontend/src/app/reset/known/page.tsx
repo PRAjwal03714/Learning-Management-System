@@ -19,7 +19,7 @@ export default function ChangePasswordPage() {
       return;
     }
 
-    const res = await fetch('http://localhost:5001/api/auth/change-password', {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/change-password`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, currentPassword, newPassword }),

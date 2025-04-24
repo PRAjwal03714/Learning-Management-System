@@ -32,7 +32,7 @@ const ViewAnnouncements = ({ courseId }: Props) => {
 
   const fetchAnnouncements = async () => {
     try {
-      const res = await axios.get(`http://localhost:5001/api/announcements/by-course/${courseId}`, {
+      const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/announcements/by-course/${courseId}`, {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
       });
       setAnnouncements(res.data.announcements);
@@ -46,7 +46,7 @@ const ViewAnnouncements = ({ courseId }: Props) => {
 
   const fetchCourse = async () => {
     try {
-      const res = await axios.get(`http://localhost:5001/api/courses/${courseId}`, {
+      const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/courses/${courseId}`, {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
       });
       setCourse(res.data.course);
@@ -63,7 +63,7 @@ const ViewAnnouncements = ({ courseId }: Props) => {
   const handleDelete = async (id: string) => {
     if (!confirm("Delete this announcement?")) return;
     try {
-      await axios.delete(`http://localhost:5001/api/announcements/${id}`, {
+      await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/api/announcements/${id}`, {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
       });
       toast.success("Announcement deleted");

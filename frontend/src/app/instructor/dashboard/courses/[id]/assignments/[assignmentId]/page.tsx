@@ -23,7 +23,7 @@ export default function AssignmentDetailsPage() {
   useEffect(() => {
     const fetchAssignment = async () => {
       try {
-        const res = await axios.get(`http://localhost:5001/api/assignments/${assignmentId}`, {
+        const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/assignments/${assignmentId}`, {
           headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
         });
         setAssignment(res.data.assignment);

@@ -28,7 +28,7 @@ export default function EditAssignmentPage() {
 
   useEffect(() => {
     const fetchAssignment = async () => {
-      const res = await axios.get(`http://localhost:5001/api/assignments/${assignmentId}`, {
+      const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/assignments/${assignmentId}`, {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
       });
   
@@ -60,7 +60,7 @@ export default function EditAssignmentPage() {
 
   const removeExistingFile = async (fileId: string) => {
     try {
-      await axios.delete(`http://localhost:5001/api/assignments/${assignmentId}/files/${fileId}`, {
+      await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/api/assignments/${assignmentId}/files/${fileId}`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem('token')}`,
         },
@@ -85,7 +85,7 @@ export default function EditAssignmentPage() {
     files.forEach((file) => formData.append('files', file));
 
     try {
-      await axios.put(`http://localhost:5001/api/assignments/${assignmentId}`, formData, {
+      await axios.put(`${process.env.NEXT_PUBLIC_API_URL}/api/assignments/${assignmentId}`, formData, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem('token')}`,
           'Content-Type': 'multipart/form-data',
@@ -175,7 +175,7 @@ export default function EditAssignmentPage() {
             <div className="space-y-1">
             {existingFiles.map((file) => (
   <div key={file.id} className="flex justify-between items-center text-sm border px-3 py-1 rounded">
-    <a href={`http://localhost:5001${file.url}`} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+    <a href={`${process.env.NEXT_PUBLIC_API_URL}${file.url}`} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
       {file.name}
     </a>
     <button

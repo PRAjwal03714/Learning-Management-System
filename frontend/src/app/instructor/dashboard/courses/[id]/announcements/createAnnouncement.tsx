@@ -12,7 +12,7 @@ const CreateAnnouncement = ({ courseId }: { courseId: string }) => {
     e.preventDefault();
     try {
       await axios.post(
-        'http://localhost:5001/api/announcements/create',
+        `${process.env.NEXT_PUBLIC_API_URL}/api/announcements/create`,
         { title, content, course_id: courseId },
         { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } }
       );

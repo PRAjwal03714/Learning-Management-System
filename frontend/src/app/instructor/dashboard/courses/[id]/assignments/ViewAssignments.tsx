@@ -34,7 +34,7 @@ export default function ViewAssignments({ courseId }: Props) {
   const fetchAssignments = async () => {
     try {
       const res = await axios.get(
-        `http://localhost:5001/api/assignments/by-course/${courseId}`,
+        `${process.env.NEXT_PUBLIC_API_URL}/api/assignments/by-course/${courseId}`,
         {
           headers: {
             Authorization: `Bearer ${localStorage.getItem('token')}`,
@@ -88,7 +88,7 @@ export default function ViewAssignments({ courseId }: Props) {
           {a.file_url && (
             <div className="mt-2">
               <a
-                href={`http://localhost:5001/uploads/assignments/${a.file_url}`}
+                href={`${process.env.NEXT_PUBLIC_API_URL}/uploads/assignments/${a.file_url}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-blue-600 text-sm cursor-pointer block"
@@ -104,7 +104,7 @@ export default function ViewAssignments({ courseId }: Props) {
               {a.files.map((file) => (
                 <a
                 key={file.id}
-                href={`http://localhost:5001${file.url}`} // ✅ Use file.url directly
+                href={`${process.env.NEXT_PUBLIC_API_URL}${file.url}`} // ✅ Use file.url directly
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-blue-600 text-sm cursor-pointer block"
@@ -141,7 +141,7 @@ export default function ViewAssignments({ courseId }: Props) {
                 if (!confirmed) return;
                 try {
                   await axios.delete(
-                    `http://localhost:5001/api/assignments/${a.id}`,
+                    `${process.env.NEXT_PUBLIC_API_URL}/api/assignments/${a.id}`,
                     {
                       headers: {
                         Authorization: `Bearer ${localStorage.getItem('token')}`,

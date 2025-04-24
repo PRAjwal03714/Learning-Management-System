@@ -28,7 +28,7 @@ export default function StudentAnnouncementsPage() {
 
         const fetchCourse = async () => {
             try {
-                const res = await axios.get(`http://localhost:5001/api/courses/${id}`, {
+                const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/courses/${id}`, {
                     headers: { Authorization: `Bearer ${token}` },
                 });
                 setCourse(res.data.course);
@@ -39,7 +39,7 @@ export default function StudentAnnouncementsPage() {
 
         const fetchAnnouncements = async () => {
             try {
-                const res = await axios.get(`http://localhost:5001/api/announcements/by-course/${id}`, {
+                const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/announcements/by-course/${id}`, {
                     headers: { Authorization: `Bearer ${token}` },
                 });
                 setAnnouncements(res.data.announcements || []);

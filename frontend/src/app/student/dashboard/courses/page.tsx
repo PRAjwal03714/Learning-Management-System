@@ -21,7 +21,7 @@ export default function StudentAllCoursesPage() {
   useEffect(() => {
     const fetchCourses = async () => {
       try {
-        const res = await axios.get('http://localhost:5001/api/courses/my-registered-courses', {
+        const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/courses/my-registered-courses`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         setCourses(res.data.courses);

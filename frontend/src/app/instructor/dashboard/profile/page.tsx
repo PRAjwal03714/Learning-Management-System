@@ -40,7 +40,7 @@ export default function InstructorProfilePage() {
 
   const fetchProfile = async () => {
     try {
-      const res = await axios.get('http://localhost:5001/api/profile/me', {
+      const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/profile/me`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = res.data;
@@ -65,7 +65,7 @@ export default function InstructorProfilePage() {
         formData.append('profile_picture', selectedFile);
       }
 
-      await axios.put('http://localhost:5001/api/profile/update', formData, {
+      await axios.put(`${process.env.NEXT_PUBLIC_API_URL}/api/profile/update`, formData, {
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'multipart/form-data',
@@ -82,7 +82,7 @@ export default function InstructorProfilePage() {
   const handleRemovePhoto = async () => {
     try {
       await axios.put(
-        'http://localhost:5001/api/profile/remove-photo',
+        `${process.env.NEXT_PUBLIC_API_URL}/api/profile/remove-photo`,
         {},
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -115,7 +115,7 @@ export default function InstructorProfilePage() {
 
   const imageSrc =
     profilePic && profilePic.startsWith('/uploads')
-      ? `http://localhost:5001${profilePic}`
+      ? `${process.env.NEXT_PUBLIC_API_URL}${profilePic}`
       : profilePic || '/placeholder.png';
 
   return (
