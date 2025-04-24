@@ -29,7 +29,19 @@ const chatRoutes = require('./src/routes/chatRoutes');
  // ✅ if you have chat REST APIs
 
 // Middleware
-app.use(cors({ origin: 'http://localhost:3000', credentials: true }));
+const allowedOrigins = [
+  'http://localhost:3000',
+  'https://lms-frontend-dx27.onrender.com' 
+];
+
+app.use(cors({
+  origin: (origin, callback) => {
+    // Allow requests with no origin like mobile apps or curl
+    if (!origin || allowedOrigins.includes(origin)) return callback(null, true);
+    return callback(new Error('Not allowed by CORS'));
+  },
+  credentials: true
+}));
 app.use((req, res, next) => {
   res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
   next();
