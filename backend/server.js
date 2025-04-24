@@ -7,15 +7,12 @@ const http = require('http');
 const { Server } = require('socket.io');
 
 const app = express();
-require('./src/middlewares/authOAuth'); // 🔥 This is what was missing
+require('./src/middlewares/authOAuth'); 
 
 
 
 // Create HTTP server and bind to app
 const server = http.createServer(app);
-
-// Socket.IO setup
- // ✅ Correct relative path
 
 // Database & Routes
 const pool = require('./src/config/db');
