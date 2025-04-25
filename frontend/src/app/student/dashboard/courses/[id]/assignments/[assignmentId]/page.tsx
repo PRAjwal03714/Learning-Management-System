@@ -182,7 +182,8 @@ export default function AssignmentSubmissionPage() {
           {assignment.files.map((f) => (
             <a
               key={f.id}
-              href={`${process.env.NEXT_PUBLIC_API_URL}${f.url}`}
+              // href={`${process.env.NEXT_PUBLIC_API_URL}${f.url}`}
+              href={f.url}
               target="_blank"
               rel="noopener noreferrer"
               className="text-blue-600 underline block mt-1"
@@ -249,7 +250,8 @@ export default function AssignmentSubmissionPage() {
                       <tr key={i} className="border-t">
                         <td className="px-4 py-2">
                           <a
-                            href={`${process.env.NEXT_PUBLIC_API_URL}/uploads/student-submissions/${f.file_name}`}
+                            // href={`${process.env.NEXT_PUBLIC_API_URL}/uploads/student-submissions/${f.file_name}`}
+                            href={f.file_name}
                             target="_blank"
                             className="text-blue-600 underline"
                           >
