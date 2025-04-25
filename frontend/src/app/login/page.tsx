@@ -17,7 +17,10 @@ export default function Login() {
     e.preventDefault();
     setErrorMsg('');
 
+
     try {
+      console.log("✅ API:", process.env.NEXT_PUBLIC_API_URL);
+
       console.log("🔥 Fetching from:", `${process.env.NEXT_PUBLIC_API_URL}/api/auth/login`);
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/login`, {
         method: 'POST',
