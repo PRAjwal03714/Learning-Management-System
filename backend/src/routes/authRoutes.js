@@ -92,7 +92,7 @@ router.get('/facebook/callback', passport.authenticate('facebook', {
     { expiresIn: '1d' }
   );
 
-  res.redirect(`http://lms-frontend-dx27.onrender.com/oauth-callback?token=${token}`);
+  res.redirect(`https://lms-frontend-dx27.onrender.com/oauth-callback?token=${token}`);
 });
 
 router.post("/instructor-login", instructorLogin);
