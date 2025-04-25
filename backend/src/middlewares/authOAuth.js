@@ -32,10 +32,6 @@ passport.use(new GoogleStrategy({
             user = newUser.rows[0];
 
             // Insert into students table too
-            await pool.query(`
-                INSERT INTO students (user_id)
-                VALUES ($1)
-            `, [user.id]);
         }
 
         return done(null, user);
@@ -49,7 +45,7 @@ passport.use(new GoogleStrategy({
 passport.use(new FacebookStrategy({
     clientID: process.env.FACEBOOK_CLIENT_ID,
     clientSecret: process.env.FACEBOOK_CLIENT_SECRET,
-    callbackURL: "/api/auth/facebook/callback",
+    callbackURL: "https://lms-backend-38al.onrender.com/api/auth/facebook/callback",
     profileFields: ["id", "displayName", "emails"]
 }, async (accessToken, refreshToken, profile, done) => {
     try {
