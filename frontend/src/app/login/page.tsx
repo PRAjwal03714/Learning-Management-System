@@ -18,6 +18,7 @@ export default function Login() {
     setErrorMsg('');
 
     try {
+      console.log("🔥 Fetching from:", `${process.env.NEXT_PUBLIC_API_URL}/api/auth/login`);
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
