@@ -40,7 +40,8 @@ exports.uploadFile = async (req, res) => {
         folder_id || null,
         course_id,
         file.originalname,
-        `/uploads/instructor-files/${file.filename}`,
+        // `/uploads/instructor-files/${file.filename}`,
+        file.path,
         file.mimetype,
         file.size
       ]

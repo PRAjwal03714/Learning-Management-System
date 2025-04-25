@@ -47,7 +47,9 @@ exports.getProfile = async (req, res) => {
 exports.updateProfile = async (req, res) => {
   const userId = req.user.id;
   const { biography, links } = req.body;
-  const filePath = req.file ? `/uploads/profile/${req.file.filename}` : null;
+  // const filePath = req.file ? `/uploads/profile/${req.file.filename}` : null;
+  const filePath = req.file ? req.file.path : null; // 🌩️ Cloudinary URL
+
 
   const rawLinks = req.body.links;
 const parsedLinks = typeof rawLinks === 'string' ? rawLinks : JSON.stringify(rawLinks);
