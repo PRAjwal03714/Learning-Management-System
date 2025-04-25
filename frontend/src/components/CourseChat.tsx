@@ -327,10 +327,15 @@ export default function CourseChat() {
                 <div className="relative">
                   {user.profile_picture ? (
                     <img 
-                      src={`${process.env.NEXT_PUBLIC_API_URL}${user.profile_picture}`}
-                      alt={user.name}
-                      className={`w-8 h-8 rounded-full object-cover`}
-                    />
+                    src={
+                      user.profile_picture?.startsWith('http')
+                        ? user.profile_picture
+                        : `${process.env.NEXT_PUBLIC_API_URL}${user.profile_picture}`
+                    }
+                    alt={user.name}
+                    className="w-8 h-8 rounded-full object-cover"
+                  />
+                  
                   ) : (
                     <FaUser className={`w-8 h-8 ${selectedRoom === user.id ? 'text-white' : 'text-gray-600'}`} />
                   )}
@@ -380,11 +385,16 @@ export default function CourseChat() {
               <div className="flex items-start">
                 {message.profile_picture ? (
                   // eslint-disable-next-line @next/next/no-img-element
-                  <img 
-                    src={`${process.env.NEXT_PUBLIC_API_URL}${message.profile_picture}`}
-                    alt={message.sender_name}
-                    className="w-6 h-6 rounded-full object-cover mt-1"
-                  />
+                  <img
+  src={
+    message.profile_picture?.startsWith('http')
+      ? message.profile_picture
+      : `${process.env.NEXT_PUBLIC_API_URL}${message.profile_picture}`
+  }
+  alt={message.sender_name}
+  className="w-6 h-6 rounded-full object-cover mt-1"
+/>
+
                 ) : (
                   <FaUser className="text-gray-600 w-6 h-6 mt-1" />
                 )}

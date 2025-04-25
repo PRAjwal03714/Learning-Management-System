@@ -153,7 +153,7 @@ export default function AssignmentGradesPage() {
                         {submission.files.map((file, index) => (
                           <li key={index}>
                             <a
-                              href={`${process.env.NEXT_PUBLIC_API_URL}/uploads/student-submissions/${file.file_name}`}
+                              href={file.file_name}
                               target="_blank"
                               rel="noopener noreferrer"
                               className="text-blue-600 underline"
