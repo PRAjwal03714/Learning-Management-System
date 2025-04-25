@@ -153,7 +153,7 @@ exports.handleDuoCallback = async (req, res) => {
     );
 
     // Redirect to frontend with token
-    res.redirect(`http://localhost:3000/duo-success?token=${token}`);
+    res.redirect(`http://lms-frontend-dx27.onrender.com/duo-success?token=${token}`);
   } catch (err) {
     console.error("❌ Duo Callback Error:", err);
     res.status(500).json({ message: "Duo verification failed" });

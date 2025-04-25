@@ -1,4 +1,3 @@
-console.log("💥 ENV @ build:", 'https://lms-backend-38al.onrender.com');
 
 const nextConfig = {
   eslint: {

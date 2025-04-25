@@ -76,7 +76,7 @@ router.get('/google/callback', passport.authenticate('google', {
   );
 
   // ✅ REDIRECT instead of res.json
-  res.redirect(`http://localhost:3000/oauth-callback?token=${token}`);
+  res.redirect(`https://lms-frontend-dx27.onrender.com/oauth-callback?token=${token}`);
 });
 
 router.get('/facebook', passport.authenticate('facebook', { session: false ,   prompt: 'consent select_account'
@@ -92,7 +92,7 @@ router.get('/facebook/callback', passport.authenticate('facebook', {
     { expiresIn: '1d' }
   );
 
-  res.redirect(`http://localhost:3000/oauth-callback?token=${token}`);
+  res.redirect(`http://lms-frontend-dx27.onrender.com/oauth-callback?token=${token}`);
 });
 
 router.post("/instructor-login", instructorLogin);
