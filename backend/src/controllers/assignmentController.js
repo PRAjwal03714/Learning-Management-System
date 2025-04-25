@@ -136,7 +136,7 @@ exports.submitAssignment = async (req, res) => {
       `, [
         studentId,
         assignmentId,
-        file.filename,
+        file.path,
         file.originalname,
         nextAttempt
       ]);
@@ -407,7 +407,7 @@ exports.updateAssignment = async (req, res) => {
         await pool.query(
           `INSERT INTO assignment_files (assignment_id, url, name)
            VALUES ($1, $2, $3)`,
-          [assignmentId, file.filename, file.originalname]
+          [assignmentId, file.path, file.originalname]
         );
       }
     }
@@ -505,7 +505,7 @@ exports.createAssignment = async (req, res) => {
         await pool.query(
           `INSERT INTO assignment_files (assignment_id, url, name)
            VALUES ($1, $2, $3)`,
-          [assignmentId, `/uploads/assignments/${file.filename}`, file.originalname]
+          [assignmentId, file.path, file.originalname]
         );
       }
     }
