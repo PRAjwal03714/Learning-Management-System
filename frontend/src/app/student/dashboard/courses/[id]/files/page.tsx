@@ -158,7 +158,8 @@ export default function StudentFilesPage() {
                 <td className="py-2">{(file.size / 1024).toFixed(1)} KB</td>
                 <td className="py-2 space-x-4">
                   <a
-                    href={`${BASE_URL}${file.url}`}
+                    // href={`${BASE_URL}${file.url}`}
+                    href={file.url}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-blue-600 underline"
@@ -166,7 +167,8 @@ export default function StudentFilesPage() {
                     View
                   </a>
                   <a
-                    href={`${BASE_URL}${file.url}`}
+                    // href={`${BASE_URL}${file.url}`}
+                    href={file.url}
                     download
                     className="text-green-600 underline"
                   >

@@ -41,7 +41,7 @@ export default function AllInstructorAnnouncementsPage() {
   );
 
   return (
-    <div className="p-6">
+    <div className="p-6 -mt-6">
       <div className="flex items-center justify-between mb-4">
         <h1 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
           <FaBullhorn className="text-blue-600" />

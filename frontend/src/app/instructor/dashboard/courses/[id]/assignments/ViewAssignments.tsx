@@ -88,7 +88,9 @@ export default function ViewAssignments({ courseId }: Props) {
           {a.file_url && (
             <div className="mt-2">
               <a
-                href={`${process.env.NEXT_PUBLIC_API_URL}/uploads/assignments/${a.file_url}`}
+                // href={`${process.env.NEXT_PUBLIC_API_URL}/uploads/assignments/${a.file_url}`}
+                href={a.file_url} // ✅ Directly use it
+
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-blue-600 text-sm cursor-pointer block"
@@ -104,7 +106,9 @@ export default function ViewAssignments({ courseId }: Props) {
               {a.files.map((file) => (
                 <a
                 key={file.id}
-                href={`${process.env.NEXT_PUBLIC_API_URL}${file.url}`} // ✅ Use file.url directly
+                // href={`${process.env.NEXT_PUBLIC_API_URL}${file.url}`} // ✅ Use file.url directly
+                href={file.url} // ✅ Directly use it
+
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-blue-600 text-sm cursor-pointer block"

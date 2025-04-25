@@ -242,8 +242,12 @@ export default function FilesPage() {
                 <td className="py-2">{new Date(file.uploaded_at).toLocaleString()}</td>
                 <td className="py-2">{(file.size / 1024).toFixed(1)} KB</td>
                 <td className="py-2 flex gap-2">
-                  <a href={`${BASE_URL}${file.url}`} target="_blank" className="text-blue-600 hover:underline">View</a>
-                  <a href={`${BASE_URL}${file.url}`} download className="text-green-600 hover:underline">Download</a>
+                  {/* <a href={`${BASE_URL}${file.url}`} target="_blank" className="text-blue-600 hover:underline">View</a> */}
+                  <a href={file.url} target="_blank" className="text-blue-600 hover:underline">View</a>
+
+                  {/* <a href={`${BASE_URL}${file.url}`} download className="text-green-600 hover:underline">Download</a> */}
+                  <a href={file.url} download className="text-green-600 hover:underline">Download</a>
+
                   <button onClick={() => deleteFile(file.id)} className="text-red-600 hover:underline">Delete</button>
                 </td>
               </tr>

@@ -40,7 +40,7 @@ export default function AllInstructorAssignmentsPage() {
   );
 
   return (
-    <div className="p-6">
+    <div className="p-6 -mt-6">
       <h1 className="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-2">
         <FaClipboardList className="text-blue-700" /> All Course Assignments
       </h1>

@@ -132,7 +132,8 @@ export default function StudentAssignmentsPage() {
                     {a.files.map((file) => (
                       <a
                         key={file.id}
-                        href={`${process.env.NEXT_PUBLIC_API_URL}${file.url}`}
+                        // href={`${process.env.NEXT_PUBLIC_API_URL}${file.url}`}
+                        href={file.url}
                         target="_blank"
                         rel="noopener noreferrer"
                         onClick={(e) => e.stopPropagation()} // prevent card click

@@ -175,8 +175,9 @@ export default function EditAssignmentPage() {
             <div className="space-y-1">
             {existingFiles.map((file) => (
   <div key={file.id} className="flex justify-between items-center text-sm border px-3 py-1 rounded">
-    <a href={`${process.env.NEXT_PUBLIC_API_URL}${file.url}`} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+    <a href={file.url}  target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
       {file.name}
+      {/* href={`${process.env.NEXT_PUBLIC_API_URL}${file.url}`} */}
     </a>
     <button
       type="button"
