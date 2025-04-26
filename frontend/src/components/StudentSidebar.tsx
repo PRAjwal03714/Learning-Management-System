@@ -8,6 +8,7 @@ import {
   FaTachometerAlt,
   FaBookOpen,
   FaCalendarAlt,
+  FaSignOutAlt,
 } from 'react-icons/fa';
 
 type SidebarItemProps = {
@@ -17,7 +18,12 @@ type SidebarItemProps = {
   onClick?: () => void;
   active?: boolean;
 };
-
+const handleLogout = () => {
+  // localStorage.clear();
+  localStorage.removeItem('token');
+  // Clear token/session if needed
+  window.location.href = '/'; // Redirect to login/home
+};
 function SidebarItem({ icon, label, href, onClick, active }: SidebarItemProps) {
   const content = (
     <div
@@ -64,6 +70,12 @@ export default function StudentSidebar() {
           href="/student/dashboard/calendar"
           active={pathname.startsWith('/student/dashboard/calendar')}
         />
+
+<SidebarItem
+  icon={<FaSignOutAlt />}
+  label="Logout"
+  onClick={handleLogout}
+/>  
       </div>
     </aside>
   );
