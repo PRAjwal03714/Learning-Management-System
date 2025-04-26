@@ -135,7 +135,7 @@ exports.submitAssignment = async (req, res) => {
           attempt_number,
           submission_text,  -- ADD THIS
           created_at
-        ) VALUES ($1, $2, $3, $4, $5, CURRENT_TIMESTAMP)
+        ) VALUES ($1, $2, $3, $4, $5,$6, CURRENT_TIMESTAMP)
       `, [
         studentId,
         assignmentId,

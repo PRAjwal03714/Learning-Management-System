@@ -77,7 +77,7 @@ export default function StudentDashboard() {
       </div>
 
       {courses.length === 0 ? (
-        <div className="text-center text-gray-500 text-lg mt-10">
+        <div className="text-gray-500 text-lg mt-10">
           No courses to display.
         </div>
       ) : (
