@@ -6,7 +6,7 @@ const storage = new CloudinaryStorage({
   cloudinary,
   params: {
     folder: 'studymate_uploads',
-    resource_type: 'auto',
+    resource_type: 'raw',
     allowed_formats: ['jpg', 'png', 'pdf', 'docx', 'xlsx', 'csv', 'sql', 'txt', 'zip', 'mp4'],
     type: 'upload', // ✅ Not private, not authenticated, just "upload"
     transformation: [{ width: 500, height: 500, crop: "limit" }], // optional
