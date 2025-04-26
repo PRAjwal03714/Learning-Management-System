@@ -80,6 +80,7 @@ exports.getStudentSubmission = async (req, res) => {
     const submissionRes = await pool.query(`
       SELECT 
         attempt_number,
+          MAX(submission_text) AS submission_text, -- 🔥 ADD THIS
         json_agg(
           json_build_object(
             'file_name', file_name,
@@ -106,16 +107,14 @@ exports.getStudentSubmission = async (req, res) => {
 exports.submitAssignment = async (req, res) => {
   const studentId = req.user.id;
   const { assignmentId } = req.params;
+  const { submission_text } = req.body; // 🔥 Add this
   const files = req.files;
-  const { submission_text } = req.body;
-
 
   try {
     if (!files || files.length === 0) {
       return res.status(400).json({ message: 'No files uploaded' });
     }
 
-    // Get the next attempt number
     const attemptRes = await pool.query(`
       SELECT COALESCE(MAX(attempt_number), 0) + 1 as next_attempt
       FROM student_submissions
@@ -124,7 +123,6 @@ exports.submitAssignment = async (req, res) => {
 
     const nextAttempt = attemptRes.rows[0].next_attempt;
 
-    // Insert each file as a new submission
     for (const file of files) {
       await pool.query(`
         INSERT INTO student_submissions (
@@ -133,16 +131,16 @@ exports.submitAssignment = async (req, res) => {
           file_name,
           original_name,
           attempt_number,
-          submission_text,  -- ADD THIS
+          submission_text, -- 🔥 ADD THIS
           created_at
-        ) VALUES ($1, $2, $3, $4, $5,$6, CURRENT_TIMESTAMP)
+        ) VALUES ($1, $2, $3, $4, $5, $6, CURRENT_TIMESTAMP)
       `, [
         studentId,
         assignmentId,
         file.path,
         file.originalname,
         nextAttempt,
-        submission_text,
+        submission_text, // 🔥 here
       ]);
     }
 
@@ -155,6 +153,7 @@ exports.submitAssignment = async (req, res) => {
     res.status(500).json({ message: 'Internal Server Error' });
   }
 };
+
 
 // Get all submissions for an assignment grouped by attempt
 exports.getStudentSubmissionsByAssignment = async (req, res) => {
