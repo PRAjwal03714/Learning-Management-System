@@ -107,6 +107,8 @@ exports.submitAssignment = async (req, res) => {
   const studentId = req.user.id;
   const { assignmentId } = req.params;
   const files = req.files;
+  const { submission_text } = req.body;
+
 
   try {
     if (!files || files.length === 0) {
@@ -131,6 +133,7 @@ exports.submitAssignment = async (req, res) => {
           file_name,
           original_name,
           attempt_number,
+          submission_text,  -- ADD THIS
           created_at
         ) VALUES ($1, $2, $3, $4, $5, CURRENT_TIMESTAMP)
       `, [
@@ -138,7 +141,8 @@ exports.submitAssignment = async (req, res) => {
         assignmentId,
         file.path,
         file.originalname,
-        nextAttempt
+        nextAttempt,
+        submission_text,
       ]);
     }
 

@@ -35,6 +35,7 @@ export default function AssignmentSubmissionPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showUploadSection, setShowUploadSection] = useState(true); // Important: first time true
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [submissionText, setSubmissionText] = useState('');
 
   useEffect(() => {
     fetchAssignmentDetails();
@@ -87,8 +88,12 @@ export default function AssignmentSubmissionPage() {
     if (files.length === 0) return toast.error('Please select files');
 
     setIsSubmitting(true);
+    // const formData = new FormData();
+    // files.forEach((file) => formData.append('files', file));
     const formData = new FormData();
-    files.forEach((file) => formData.append('files', file));
+files.forEach((file) => formData.append('files', file));
+formData.append('submission_text', submissionText);  // ADD THIS
+
 
     try {
       const token = localStorage.getItem('token');
@@ -212,6 +217,12 @@ export default function AssignmentSubmissionPage() {
               <FaTimes onClick={() => handleRemoveFile(i)} className="text-red-500 cursor-pointer" />
             </div>
           ))}
+<textarea
+  value={submissionText}
+  onChange={(e) => setSubmissionText(e.target.value)}
+  placeholder="Enter your submission text or description here..."
+  className="w-full h-40 p-2 border border-gray-300 rounded focus:outline-none focus:border-blue-500 resize-none"
+/>
 
           <div className="flex gap-4 pt-2">
             <button
