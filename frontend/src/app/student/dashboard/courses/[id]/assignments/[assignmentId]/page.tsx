@@ -24,6 +24,7 @@ interface SubmittedFile {
 interface Submission {
   attempt_number: number;
   files: SubmittedFile[];
+  submission_text?: string; // 🛠 added
 }
 
 export default function AssignmentSubmissionPage() {
@@ -32,10 +33,10 @@ export default function AssignmentSubmissionPage() {
   const [submissions, setSubmissions] = useState<Submission[]>([]);
   const [selectedAttempt, setSelectedAttempt] = useState<number>(1);
   const [files, setFiles] = useState<File[]>([]);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [showUploadSection, setShowUploadSection] = useState(true); // Important: first time true
-  const fileInputRef = useRef<HTMLInputElement>(null);
   const [submissionText, setSubmissionText] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showUploadSection, setShowUploadSection] = useState(true);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     fetchAssignmentDetails();
@@ -67,7 +68,7 @@ export default function AssignmentSubmissionPage() {
         setShowUploadSection(false);
       } else {
         setSelectedAttempt(1);
-        setShowUploadSection(true); // if no submission yet
+        setShowUploadSection(true);
       }
     } catch (err) {
       toast.error('Failed to fetch submissions');
@@ -88,12 +89,9 @@ export default function AssignmentSubmissionPage() {
     if (files.length === 0) return toast.error('Please select files');
 
     setIsSubmitting(true);
-    // const formData = new FormData();
-    // files.forEach((file) => formData.append('files', file));
     const formData = new FormData();
-files.forEach((file) => formData.append('files', file));
-formData.append('submission_text', submissionText);  // ADD THIS
-
+    files.forEach((file) => formData.append('files', file));
+    formData.append('submission_text', submissionText); // ✅ pass submission_text
 
     try {
       const token = localStorage.getItem('token');
@@ -101,15 +99,13 @@ formData.append('submission_text', submissionText);  // ADD THIS
         `${process.env.NEXT_PUBLIC_API_URL}/api/assignments/${assignmentId}/submit`,
         formData,
         {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'multipart/form-data',
-          },
+          headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'multipart/form-data' },
         }
       );
       toast.success('Assignment submitted!');
       setShowUploadSection(false);
       setFiles([]);
+      setSubmissionText(''); // ✅ clear after submit
       await fetchSubmissions();
     } catch (err) {
       toast.error('Submission failed');
@@ -121,6 +117,7 @@ formData.append('submission_text', submissionText);  // ADD THIS
   const handleNewAttempt = () => {
     setShowUploadSection(true);
     setFiles([]);
+    setSubmissionText(''); // ✅ Clear text when new attempt
     const nextAttempt = Math.max(...submissions.map(s => s.attempt_number), 0) + 1;
     setSelectedAttempt(nextAttempt);
   };
@@ -134,13 +131,14 @@ formData.append('submission_text', submissionText);  // ADD THIS
     }
     setShowUploadSection(false);
     setFiles([]);
+    setSubmissionText('');
   };
 
   const handleChooseFilesClick = () => {
     fileInputRef.current?.click();
   };
 
-  const currentAttemptFiles = submissions.find(s => s.attempt_number === selectedAttempt)?.files || [];
+  const currentAttempt = submissions.find(s => s.attempt_number === selectedAttempt);
 
   return (
     <div className="mt-1 space-y-8">
@@ -187,7 +185,6 @@ formData.append('submission_text', submissionText);  // ADD THIS
           {assignment.files.map((f) => (
             <a
               key={f.id}
-              // href={`${process.env.NEXT_PUBLIC_API_URL}${f.url}`}
               href={f.url}
               target="_blank"
               rel="noopener noreferrer"
@@ -217,12 +214,14 @@ formData.append('submission_text', submissionText);  // ADD THIS
               <FaTimes onClick={() => handleRemoveFile(i)} className="text-red-500 cursor-pointer" />
             </div>
           ))}
-<textarea
-  value={submissionText}
-  onChange={(e) => setSubmissionText(e.target.value)}
-  placeholder="Enter your submission text or description here..."
-  className="w-full h-40 p-2 border border-gray-300 rounded focus:outline-none focus:border-blue-500 resize-none"
-/>
+
+          {/* Submission Text Area */}
+          <textarea
+            value={submissionText}
+            onChange={(e) => setSubmissionText(e.target.value)}
+            placeholder="Enter your submission text or description here..."
+            className="w-full h-40 p-2 border border-gray-300 rounded focus:outline-none focus:border-blue-500 resize-none"
+          />
 
           <div className="flex gap-4 pt-2">
             <button
@@ -244,8 +243,8 @@ formData.append('submission_text', submissionText);  // ADD THIS
         </div>
       ) : (
         <>
-          {/* Show submitted files after submission */}
-          {currentAttemptFiles.length > 0 && (
+          {/* Show submitted files */}
+          {currentAttempt?.files.length > 0 && (
             <div>
               <h2 className="text-xl font-semibold mt-6 mb-2">Submitted Files:</h2>
               <div className="border rounded">
@@ -257,11 +256,10 @@ formData.append('submission_text', submissionText);  // ADD THIS
                     </tr>
                   </thead>
                   <tbody>
-                    {currentAttemptFiles.map((f, i) => (
+                    {currentAttempt.files.map((f, i) => (
                       <tr key={i} className="border-t">
                         <td className="px-4 py-2">
                           <a
-                            // href={`${process.env.NEXT_PUBLIC_API_URL}/uploads/student-submissions/${f.file_name}`}
                             href={f.file_name}
                             target="_blank"
                             className="text-blue-600 underline"
@@ -276,6 +274,16 @@ formData.append('submission_text', submissionText);  // ADD THIS
                     ))}
                   </tbody>
                 </table>
+              </div>
+            </div>
+          )}
+
+          {/* Show submission text if available */}
+          {currentAttempt?.submission_text && (
+            <div className="mt-6">
+              <h2 className="text-xl font-semibold mb-2">Submission Text:</h2>
+              <div className="p-4 border rounded bg-gray-50 whitespace-pre-wrap">
+                {currentAttempt.submission_text}
               </div>
             </div>
           )}
