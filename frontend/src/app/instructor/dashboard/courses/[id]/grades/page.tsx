@@ -18,6 +18,7 @@ interface Submission {
   grade: number | null;
   total_marks: number;
   files: { file_name: string; original_name: string }[];
+  submission_text?: string; // 🔥 Add this
 }
 
 export default function AssignmentGradesPage() {
@@ -163,6 +164,12 @@ export default function AssignmentGradesPage() {
                           </li>
                         ))}
                       </ul>
+                      {submission.submission_text && (
+    <div className="mt-2 ml-4 text-gray-700 text-sm">
+      <strong>Submission Text:</strong>
+      <p className="whitespace-pre-line">{submission.submission_text}</p>
+    </div>
+  )}
                     </td>
                     <td className="px-4 py-4">
                       {submission.submitted_at ? new Date(submission.submitted_at).toLocaleString() : '-'}

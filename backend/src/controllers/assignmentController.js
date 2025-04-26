@@ -601,6 +601,7 @@ SELECT
   MAX(ss.created_at) AS submitted_at,
   MAX(ss.grade) AS grade,
   a.marks AS total_marks,  -- ✅ ADD THIS LINE to fetch maximum marks
+  getAssignmentSubmissions,
   JSON_AGG(
     JSON_BUILD_OBJECT(
       'file_name', ss.file_name,
