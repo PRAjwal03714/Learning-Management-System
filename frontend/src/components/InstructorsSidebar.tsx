@@ -89,13 +89,6 @@ export default function InstructorSidebar() {
           href="/instructor/dashboard/calendar"
           active={pathname === '/instructor/dashboard/calendar'}
         />
-         <SidebarItem
-          icon={<FaCalendarAlt />}
-          label="Calendar"
-          href="/instructor/dashboard/calendar"
-          active={pathname === '/instructor/dashboard/calendar'}
-        />
-
 <SidebarItem
   icon={<FaSignOutAlt />}
   label="Logout"
