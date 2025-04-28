@@ -212,33 +212,32 @@ exports.getCourseUsers = async (req, res) => {
     // Get both students and instructors
     const users = await pool.query(
       `(
-        -- Get students
-        SELECT 
-          u.id, u.name, u.role,
-          COALESCE(us.status, 'offline') as status,
-          us.last_active,
-          u.profile_picture,
-            COALESCE(us.is_typing, false) as is_typing
-        FROM users u
-        JOIN student_courses sc ON u.id = sc.student_id
-        LEFT JOIN user_status us ON u.id = us.user_id
-        WHERE sc.course_id = $1 AND u.id != $2
-      )
-      UNION ALL
-      (
-        -- Get course instructor
-        SELECT 
-          u.id, u.name, u.role,
-          COALESCE(us.status, 'offline') as status,
-          us.last_active,
-          i.profile_picture
-        FROM users u
-        JOIN courses c ON c.instructor_id = u.id
-        LEFT JOIN instructors i ON u.id = i.user_id
-        LEFT JOIN user_status us ON u.id = us.user_id
-        WHERE c.id = $1 AND u.id != $2
-      )
-      ORDER BY role DESC, name ASC`, // Order by role to show instructors first
+  SELECT 
+    u.id, u.name, u.role,
+    COALESCE(us.status, 'offline') as status,
+    us.last_active,
+    u.profile_picture,
+    COALESCE(us.is_typing, false) as is_typing
+  FROM users u
+  JOIN student_courses sc ON u.id = sc.student_id
+  LEFT JOIN user_status us ON u.id = us.user_id
+  WHERE sc.course_id = $1 AND u.id != $2
+)
+UNION ALL
+(
+  SELECT 
+    u.id, u.name, u.role,
+    COALESCE(us.status, 'offline') as status,
+    us.last_active,
+    i.profile_picture,
+    COALESCE(us.is_typing, false) as is_typing  -- ✅ added here also
+  FROM users u
+  JOIN courses c ON c.instructor_id = u.id
+  LEFT JOIN instructors i ON u.id = i.user_id
+  LEFT JOIN user_status us ON u.id = us.user_id
+  WHERE c.id = $1 AND u.id != $2
+)
+ORDER BY role DESC, name ASC`, // Order by role to show instructors first
       [courseId, userId]
     );
 
