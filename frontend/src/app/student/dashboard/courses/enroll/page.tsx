@@ -1,7 +1,6 @@
 'use client';
 
 import Link from 'next/link';
-
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 
@@ -21,6 +20,8 @@ export default function EnrollCoursesPage() {
   const [courses, setCourses] = useState<Course[]>([]);
   const [registeredIds, setRegisteredIds] = useState<Set<string>>(new Set());
   const [enrolledCredits, setEnrolledCredits] = useState<number>(0);
+  const [search, setSearch] = useState('');
+  const [filterOption, setFilterOption] = useState('all');
 
   const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
 
@@ -100,6 +101,18 @@ export default function EnrollCoursesPage() {
     }
   };
 
+  const filteredCourses = courses
+    .filter((course) =>
+      course.course_name.toLowerCase().includes(search.toLowerCase())
+    )
+    .sort((a, b) => {
+      if (filterOption === 'credits-high') return b.credits - a.credits;
+      if (filterOption === 'credits-low') return a.credits - b.credits;
+      if (filterOption === 'term-asc') return a.term.localeCompare(b.term);
+      if (filterOption === 'term-desc') return b.term.localeCompare(a.term);
+      return 0;
+    });
+
   return (
     <div className="-mt-1">
       <div className="flex justify-between items-center mb-4">
@@ -107,6 +120,28 @@ export default function EnrollCoursesPage() {
         <span className="text-lg font-semibold text-gray-700">
           Enrolled Credits: {enrolledCredits} (max 12)
         </span>
+      </div>
+
+      {/* 🔍 Search and Filter */}
+      <div className="flex flex-col md:flex-row gap-4 mb-6">
+        <input
+          type="text"
+          placeholder="Search courses..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="flex-1 px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+        <select
+          value={filterOption}
+          onChange={(e) => setFilterOption(e.target.value)}
+          className="flex-1 px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+        >
+          <option value="all">All Courses</option>
+          <option value="credits-high">Credits High → Low</option>
+          <option value="credits-low">Credits Low → High</option>
+          <option value="term-asc">Term A → Z</option>
+          <option value="term-desc">Term Z → A</option>
+        </select>
       </div>
 
       <div className="overflow-x-auto">
@@ -124,22 +159,22 @@ export default function EnrollCoursesPage() {
             </tr>
           </thead>
           <tbody>
-            {courses.length === 0 ? (
+            {filteredCourses.length === 0 ? (
               <tr>
                 <td colSpan={8} className="text-center py-4 text-gray-500">
                   No courses available.
                 </td>
               </tr>
             ) : (
-              courses.map((course) => {
+              filteredCourses.map((course) => {
                 const isRegistered = registeredIds.has(course.course_id);
                 const limitReached = enrolledCredits + course.credits > 12;
 
                 return (
                   <tr key={course.course_id} className="border-t">
                     <td className="px-4 py-2">
-                    <Link href={`/student/dashboard/courses/details/${course.course_id}`}
-
+                      <Link
+                        href={`/student/dashboard/courses/details/${course.course_id}`}
                         className="text-blue-600 hover:underline cursor-pointer"
                       >
                         {course.course_name}
@@ -156,9 +191,9 @@ export default function EnrollCoursesPage() {
                         onClick={() => handleRegister(course)}
                         disabled={isRegistered || limitReached}
                         className={`px-3 py-1 rounded text-white ${isRegistered || limitReached
-                            ? 'bg-gray-400 cursor-not-allowed'
-                            : 'bg-green-600 hover:bg-green-700 cursor-pointer'
-                          }`}
+                          ? 'bg-gray-400 cursor-not-allowed'
+                          : 'bg-green-600 hover:bg-green-700 cursor-pointer'
+                        }`}
                       >
                         Register
                       </button>
@@ -166,9 +201,9 @@ export default function EnrollCoursesPage() {
                         onClick={() => handleUnregister(course)}
                         disabled={!isRegistered}
                         className={`px-3 py-1 rounded text-white ${!isRegistered
-                            ? 'bg-gray-400 cursor-not-allowed'
-                            : 'bg-[#7c0000] hover:bg-[#7c0000] cursor-pointer'
-                          }`}
+                          ? 'bg-gray-400 cursor-not-allowed'
+                          : 'bg-[#7c0000] hover:bg-[#7c0000] cursor-pointer'
+                        }`}
                       >
                         Unregister
                       </button>
