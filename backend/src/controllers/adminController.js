@@ -41,3 +41,17 @@ exports.approveInstructor = async (req, res) => {
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 };
+exports.getPendingInstructors = async (req, res) => {
+  try {
+    const pendingInstructors = await pool.query(
+      `SELECT id, name, email, is_approved 
+       FROM instructors 
+       WHERE is_approved = false`
+    );
+
+    res.status(200).json({ instructors: pendingInstructors.rows });
+  } catch (error) {
+    console.error('Error fetching pending instructors:', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};
