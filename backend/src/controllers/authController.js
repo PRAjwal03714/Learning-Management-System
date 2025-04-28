@@ -6,7 +6,7 @@ const { validationResult } = require("express-validator");
 const { sendResetEmail } = require("../utils/emailService");
 const DuoUniversal = require("@duosecurity/duo_universal").Client;
 
-// let resetTokens = {}; // Temporary storage for reset tokens
+let resetTokens = {}; // Temporary storage for reset tokens
 
 // console.log("DUO_CLIENT_ID:", process.env.DUO_CLIENT_ID);
 // console.log("DUO_CLIENT_SECRET:", process.env.DUO_CLIENT_SECRET);
