@@ -33,6 +33,8 @@ export default function StudentAssignmentsPage() {
   const [course, setCourse] = useState<Course | null>(null);
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
+  const [filterOption, setFilterOption] = useState('all');
+
 
   const fetchData = async () => {
     const token = localStorage.getItem('token');
@@ -60,10 +62,28 @@ export default function StudentAssignmentsPage() {
     fetchData();
   }, [courseId]);
 
-  const filtered = assignments.filter((a) =>
+  // const filtered = assignments.filter((a) =>
+  //   a.title.toLowerCase().includes(search.toLowerCase()) ||
+  //   a.description.toLowerCase().includes(search.toLowerCase())
+  // );
+  const filtered = assignments
+  .filter((a) =>
     a.title.toLowerCase().includes(search.toLowerCase()) ||
     a.description.toLowerCase().includes(search.toLowerCase())
-  );
+  )
+  .filter((a) => {
+    if (filterOption === 'has-files') return a.files && a.files.length > 0;
+    if (filterOption === 'has-comments') return a.comment && a.comment.trim() !== '';
+    return true;
+  })
+  .sort((a, b) => {
+    if (filterOption === 'due-soon') return new Date(a.due_date).getTime() - new Date(b.due_date).getTime();
+    if (filterOption === 'due-late') return new Date(b.due_date).getTime() - new Date(a.due_date).getTime();
+    if (filterOption === 'marks-high') return (b.marks ?? 0) - (a.marks ?? 0);
+    if (filterOption === 'marks-low') return (a.marks ?? 0) - (b.marks ?? 0);
+    return 0;
+  });
+
 
   const handleCardClick = (assignmentId: string) => {
     router.push(`/student/dashboard/courses/${courseId}/assignments/${assignmentId}`);
@@ -100,6 +120,19 @@ export default function StudentAssignmentsPage() {
         onChange={(e) => setSearch(e.target.value)}
         className="w-full max-w-md mb-6 px-4 py-2 border border-gray-300 rounded shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
       />
+      <select
+    value={filterOption}
+    onChange={(e) => setFilterOption(e.target.value)}
+    className="w-full md:w-1/3 px-4 py-2 border border-gray-300 rounded shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+  >
+    <option value="all">All Assignments</option>
+    <option value="due-soon">Due Date (Soonest First)</option>
+    <option value="due-late">Due Date (Latest First)</option>
+    <option value="marks-high">Marks (Highest First)</option>
+    <option value="marks-low">Marks (Lowest First)</option>
+    <option value="has-files">Has Attached Files</option>
+    <option value="has-comments">Has Comments</option>
+  </select>
 
       {/* 📌 Assignment List */}
       {filtered.length === 0 ? (
