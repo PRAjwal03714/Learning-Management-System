@@ -113,17 +113,19 @@ export default function StudentAssignmentsPage() {
       </h2>
 
       {/* 🔍 Search Bar */}
-      <input
-        type="text"
-        placeholder="Search assignments..."
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-        className="w-full max-w-md mb-6 px-4 py-2 border border-gray-300 rounded shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-      />
-      <select
+      <div className="flex flex-col md:flex-row gap-4 mb-6">
+  <input
+    type="text"
+    placeholder="Search assignments..."
+    value={search}
+    onChange={(e) => setSearch(e.target.value)}
+    className="w-full max-w-md px-4 py-2 border border-gray-300 rounded shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+  />
+
+  <select
     value={filterOption}
     onChange={(e) => setFilterOption(e.target.value)}
-    className="w-full md:w-1/3 px-4 py-2 border border-gray-300 rounded shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+    className="w-full max-w-md px-4 py-2 border border-gray-300 rounded shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
   >
     <option value="all">All Assignments</option>
     <option value="due-soon">Due Date (Soonest First)</option>
@@ -133,6 +135,8 @@ export default function StudentAssignmentsPage() {
     <option value="has-files">Has Attached Files</option>
     <option value="has-comments">Has Comments</option>
   </select>
+</div>
+
 
       {/* 📌 Assignment List */}
       {filtered.length === 0 ? (
