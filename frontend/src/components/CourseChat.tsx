@@ -23,6 +23,8 @@ interface User {
   status: 'online' | 'offline';
   last_active: string;
   profile_picture?: string;
+  is_typing: boolean; 
+
 }
 
 export default function CourseChat() {
@@ -267,15 +269,42 @@ export default function CourseChat() {
     }
   };
 
-  const handleTyping = () => {
-    setIsTyping(true);
+  const handleTyping = async () => {
+    if (!isTyping) {
+      setIsTyping(true);
+      try {
+        await axios.post(
+          `${process.env.NEXT_PUBLIC_API_URL}/api/chat/typing`,
+          { is_typing: true },
+          {
+            headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+          }
+        );
+      } catch (err) {
+        console.error('Error updating typing status:', err);
+      }
+    }
+  
     if (typingTimeoutRef.current) {
       clearTimeout(typingTimeoutRef.current);
     }
-    typingTimeoutRef.current = setTimeout(() => {
+  
+    typingTimeoutRef.current = setTimeout(async () => {
       setIsTyping(false);
+      try {
+        await axios.post(
+          `${process.env.NEXT_PUBLIC_API_URL}/api/chat/typing`,
+          { is_typing: false },
+          {
+            headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+          }
+        );
+      } catch (err) {
+        console.error('Error updating typing status:', err);
+      }
     }, 2000);
   };
+  
 
   const scrollToBottom = (behavior: ScrollBehavior = 'smooth') => {
     if (messagesEndRef.current) {
@@ -298,6 +327,7 @@ export default function CourseChat() {
       </div>
     );
   }
+  const typingUsers = users.filter((u) => u.is_typing);
 
   return (
     <div className="-mt-4 flex h-full bg-white relative">
@@ -375,7 +405,11 @@ export default function CourseChat() {
           <h3 className="font-semibold">
             {selectedRoom === 'group' ? 'Course Group Chat' : users.find(u => u.id === selectedRoom)?.name}
           </h3>
-          {isTyping && <div className="text-sm text-gray-500">Someone is typing...</div>}
+          {typingUsers.length > 0 && (
+  <div className="text-sm text-gray-500">
+    {typingUsers.map((user) => user.name).join(', ')} {typingUsers.length === 1 ? 'is' : 'are'} typing...
+  </div>
+)}
         </div>
 
         {/* Messages */}

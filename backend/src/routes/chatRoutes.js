@@ -25,4 +25,7 @@ router.post('/status', authMiddleware, chatController.updateUserStatus);
 // Mark messages as read
 router.post('/messages/read', authMiddleware, chatController.markMessagesAsRead);
 
+router.post('/typing', authMiddleware, chatController.updateTypingStatus);
+
+
 module.exports = router; 

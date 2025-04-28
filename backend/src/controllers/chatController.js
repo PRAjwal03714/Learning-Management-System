@@ -217,7 +217,8 @@ exports.getCourseUsers = async (req, res) => {
           u.id, u.name, u.role,
           COALESCE(us.status, 'offline') as status,
           us.last_active,
-          u.profile_picture
+          u.profile_picture,
+            COALESCE(us.is_typing, false) as is_typing
         FROM users u
         JOIN student_courses sc ON u.id = sc.student_id
         LEFT JOIN user_status us ON u.id = us.user_id
@@ -291,3 +292,23 @@ exports.markMessagesAsRead = async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 }; 
+
+// POST /api/chat/typing
+exports.updateTypingStatus = async (req, res) => {
+  const { is_typing } = req.body;
+  const userId = req.user.id;
+
+  try {
+    await pool.query(
+      `UPDATE user_status
+       SET is_typing = $1, last_active = CURRENT_TIMESTAMP
+       WHERE user_id = $2`,
+      [is_typing, userId]
+    );
+
+    res.json({ message: 'Typing status updated' });
+  } catch (error) {
+    console.error('Error updating typing status:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
