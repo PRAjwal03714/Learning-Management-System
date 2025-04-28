@@ -16,6 +16,7 @@ interface Announcement {
 export default function AllInstructorAnnouncementsPage() {
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
   const [search, setSearch] = useState('');
+  const [filterOption, setFilterOption] = useState('all');
 
   useEffect(() => {
     const fetchAnnouncements = async () => {
@@ -34,11 +35,19 @@ export default function AllInstructorAnnouncementsPage() {
     fetchAnnouncements();
   }, []);
 
-  const filtered = announcements.filter((a) =>
-    a.title.toLowerCase().includes(search.toLowerCase()) ||
-    a.content.toLowerCase().includes(search.toLowerCase()) ||
-    a.course_title.toLowerCase().includes(search.toLowerCase())
-  );
+  const filtered = announcements
+    .filter((a) =>
+      a.title.toLowerCase().includes(search.toLowerCase()) ||
+      a.content.toLowerCase().includes(search.toLowerCase()) ||
+      a.course_title.toLowerCase().includes(search.toLowerCase())
+    )
+    .sort((a, b) => {
+      if (filterOption === 'newest') return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+      if (filterOption === 'oldest') return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+      if (filterOption === 'title-asc') return a.title.localeCompare(b.title);
+      if (filterOption === 'title-desc') return b.title.localeCompare(a.title);
+      return 0;
+    });
 
   return (
     <div className="p-6 -mt-6">
@@ -49,13 +58,27 @@ export default function AllInstructorAnnouncementsPage() {
         </h1>
       </div>
 
-      <input
-        type="text"
-        placeholder="Search announcements..."
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-        className="w-full max-w-lg mb-6 px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-      />
+      {/* 🔍 Search and Filter */}
+      <div className="flex flex-col md:flex-row gap-4 mb-6">
+        <input
+          type="text"
+          placeholder="Search announcements..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="flex-1 px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+        <select
+          value={filterOption}
+          onChange={(e) => setFilterOption(e.target.value)}
+          className="flex-1 px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+        >
+          <option value="all">All</option>
+          <option value="newest">Newest First</option>
+          <option value="oldest">Oldest First</option>
+          <option value="title-asc">Title A-Z</option>
+          <option value="title-desc">Title Z-A</option>
+        </select>
+      </div>
 
       {filtered.length === 0 ? (
         <p className="text-gray-500 italic">No announcements found.</p>
@@ -71,9 +94,7 @@ export default function AllInstructorAnnouncementsPage() {
                   <FaBullhorn className="text-blue-600 text-xl" />
                 </div>
                 <div>
-                  <h2 className="text-lg font-semibold text-gray-900 leading-snug">
-                    {a.title}
-                  </h2>
+                  <h2 className="text-lg font-semibold text-gray-900 leading-snug">{a.title}</h2>
                   <p className="text-sm text-gray-500 mb-1">{a.course_title}</p>
                   <p className="text-gray-700 text-sm line-clamp-2">{a.content}</p>
                 </div>
