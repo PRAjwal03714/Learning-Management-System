@@ -43,6 +43,7 @@ passport.use(new GoogleStrategy({
     }
     
 }))};
+if (process.env.NODE_ENV !== "test") {
 
 // Configure Facebook OAuth Strategy
 passport.use(new FacebookStrategy({
@@ -78,7 +79,7 @@ passport.use(new FacebookStrategy({
         console.error("❌ Error in Facebook Strategy:", err);
         return done(err, null);
     }
-}));
+}))};
 
 passport.serializeUser((user, done) => {
     done(null, user.id);
