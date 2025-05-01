@@ -7,20 +7,19 @@ const { sendResetEmail } = require("../utils/emailService");
 const DuoUniversal = require("@duosecurity/duo_universal").Client;
 
 let resetTokens = {}; // Temporary storage for reset tokens
-let duo;
+
 // console.log("DUO_CLIENT_ID:", process.env.DUO_CLIENT_ID);
 // console.log("DUO_CLIENT_SECRET:", process.env.DUO_CLIENT_SECRET);
 // console.log("DUO_API_HOSTNAME:", process.env.DUO_API_HOSTNAME);
 // console.log("DUO_REDIRECT_URI:", process.env.DUO_REDIRECT_URI);
 
-if (process.env.NODE_ENV !== "test") {
 
 const duo = new DuoUniversal({
   clientId: process.env.DUO_CLIENT_ID,
   clientSecret: process.env.DUO_CLIENT_SECRET,
   apiHost: process.env.DUO_API_HOSTNAME,
   redirectUrl: process.env.DUO_REDIRECT_URI,
-});}
+});
 // backend/controllers/authController.js
 
 const nodemailer = require("nodemailer");
@@ -319,24 +318,15 @@ exports.instructorLogin = async (req, res) => {
   if (!instructorId || !password) {
     return res.status(400).json({ message: "Instructor ID and password are required." });
   }
-  if (process.env.NODE_ENV === 'test') {
-    return res.status(200).json({
-      message: "Instructor login successful (mocked)",
-      token: "mocked-token"
-    });
-  }
+
   try {
     // Get instructor by instructor_id
-    console.log(">> Login attempt:", instructorId, password);
-
     const instructorRes = await pool.query(
       `SELECT i.*, u.password, u.role FROM instructors i
        JOIN users u ON u.id = i.user_id
        WHERE i.instructor_id = $1`,
       [instructorId]
     );
-    console.log(">> Query result rows:", instructorRes.rows.length);
-
 
     if (instructorRes.rows.length === 0) {
       return res.status(404).json({ message: "Instructor not found." });
