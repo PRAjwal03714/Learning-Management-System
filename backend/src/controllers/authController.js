@@ -13,13 +13,14 @@ let resetTokens = {}; // Temporary storage for reset tokens
 // console.log("DUO_API_HOSTNAME:", process.env.DUO_API_HOSTNAME);
 // console.log("DUO_REDIRECT_URI:", process.env.DUO_REDIRECT_URI);
 
+if (process.env.NODE_ENV !== "test") {
 
 const duo = new DuoUniversal({
   clientId: process.env.DUO_CLIENT_ID,
   clientSecret: process.env.DUO_CLIENT_SECRET,
   apiHost: process.env.DUO_API_HOSTNAME,
   redirectUrl: process.env.DUO_REDIRECT_URI,
-});
+});}
 // backend/controllers/authController.js
 
 const nodemailer = require("nodemailer");
