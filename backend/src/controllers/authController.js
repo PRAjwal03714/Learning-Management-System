@@ -7,7 +7,7 @@ const { sendResetEmail } = require("../utils/emailService");
 const DuoUniversal = require("@duosecurity/duo_universal").Client;
 
 let resetTokens = {}; // Temporary storage for reset tokens
-
+let duo;
 // console.log("DUO_CLIENT_ID:", process.env.DUO_CLIENT_ID);
 // console.log("DUO_CLIENT_SECRET:", process.env.DUO_CLIENT_SECRET);
 // console.log("DUO_API_HOSTNAME:", process.env.DUO_API_HOSTNAME);
