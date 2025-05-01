@@ -1,4 +1,4 @@
-name: Deploy LMS to Render
+name: CI/CD for LMS
 
 on:
   push:
@@ -6,17 +6,34 @@ on:
       - main
 
 jobs:
-  deploy:
+  test-and-deploy:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout repo
-      uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-    - name: Trigger Backend Deploy on Render
-      run: |
-        curl -X POST ${{ secrets.RENDER_BACKEND_HOOK }}
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
 
-    - name: Trigger Frontend Deploy on Render
-      run: |
-        curl -X POST ${{ secrets.RENDER_FRONTEND_HOOK }}
+      - name: Install dependencies
+        run: |
+          cd backend
+          npm install
+
+      - name: Run tests
+        run: |
+          cd backend
+          npm test -- --forceExit --detectOpenHandles
+
+      - name: Deploy Backend to Render
+        if: success()
+        run: |
+          curl -X POST ${{ secrets.RENDER_BACKEND_HOOK }}
+
+      - name: Deploy Frontend to Render
+        if: success()
+        run: |
+          curl -X POST ${{ secrets.RENDER_FRONTEND_HOOK }}
