@@ -27,6 +27,9 @@ jobs:
         run: |
           cd backend
           npm test -- --forceExit --detectOpenHandles
+        env:
+          NODE_ENV: test
+
 
       - name: Deploy Backend to Render
         if: success()

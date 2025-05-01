@@ -5,6 +5,8 @@ const jwt = require("jsonwebtoken");
 const pool = require("../config/db");
 
 // Configure Google OAuth Strategy
+if (process.env.NODE_ENV !== "test") {
+
 passport.use(new GoogleStrategy({
     clientID: process.env.GOOGLE_CLIENT_ID,
     clientSecret: process.env.GOOGLE_CLIENT_SECRET,
@@ -39,7 +41,8 @@ passport.use(new GoogleStrategy({
         console.error("❌ Error in Google Strategy:", err);
         return done(err, null);
     }
-}));
+    
+}))};
 
 // Configure Facebook OAuth Strategy
 passport.use(new FacebookStrategy({

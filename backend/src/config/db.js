@@ -9,6 +9,7 @@ const pool = new Pool({
     rejectUnauthorized: false, // Required for Render-hosted PostgreSQL
   },
 });
+if (process.env.NODE_ENV !== "test") {
 
 pool.connect()
   .then(() => console.log("✅ PostgreSQL Connected Successfully!"))
@@ -26,7 +27,7 @@ const initializeDb = async () => {
   } catch (err) {
     console.error('Error initializing database tables:', err);
   }
-};
+};}
 
 initializeDb();
 
