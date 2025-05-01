@@ -75,3 +75,4 @@ const PORT = process.env.PORT || 5001;
 server.listen(PORT, () => {
   console.log(`🚀 Server running with WebSocket on http://localhost:${PORT}`);
 });
+module.exports = app;

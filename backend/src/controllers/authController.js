@@ -321,12 +321,16 @@ exports.instructorLogin = async (req, res) => {
 
   try {
     // Get instructor by instructor_id
+    console.log(">> Login attempt:", instructorId, password);
+
     const instructorRes = await pool.query(
       `SELECT i.*, u.password, u.role FROM instructors i
        JOIN users u ON u.id = i.user_id
        WHERE i.instructor_id = $1`,
       [instructorId]
     );
+    console.log(">> Query result rows:", instructorRes.rows.length);
+
 
     if (instructorRes.rows.length === 0) {
       return res.status(404).json({ message: "Instructor not found." });

@@ -30,4 +30,4 @@ const initializeDb = async () => {
 
 initializeDb();
 
-module.exports = pool;
+module.exports =pool;
