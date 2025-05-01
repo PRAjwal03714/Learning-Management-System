@@ -3,19 +3,15 @@ require('dotenv').config();
 const fs = require('fs');
 const path = require('path');
 
+// Initialize PostgreSQL pool
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
   ssl: {
     rejectUnauthorized: false, // Required for Render-hosted PostgreSQL
   },
 });
-if (process.env.NODE_ENV !== "test") {
 
-pool.connect()
-  .then(() => console.log("✅ PostgreSQL Connected Successfully!"))
-  .catch(err => console.error("❌ PostgreSQL Connection Error:", err));
-
-// Initialize database tables
+// Define database initializer
 const initializeDb = async () => {
   try {
     const sql = fs.readFileSync(
@@ -23,12 +19,20 @@ const initializeDb = async () => {
       'utf8'
     );
     await pool.query(sql);
-    console.log('Database tables initialized successfully');
+    console.log('✅ Database tables initialized successfully');
   } catch (err) {
-    console.error('Error initializing database tables:', err);
+    console.error('❌ Error initializing database tables:', err);
   }
-};}
+};
 
-initializeDb();
+// Only connect and initialize if NOT in test mode
+if (process.env.NODE_ENV !== 'test') {
+  pool.connect()
+    .then(() => {
+      console.log('✅ PostgreSQL Connected Successfully!');
+      return initializeDb();
+    })
+    .catch(err => console.error('❌ PostgreSQL Connection Error:', err));
+}
 
-module.exports =pool;
+module.exports = pool;
