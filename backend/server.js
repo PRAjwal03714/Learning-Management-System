@@ -31,7 +31,7 @@ const chatRoutes = require('./src/routes/chatRoutes');
 // Middleware
 const allowedOrigins = [
   'http://localhost:3000',
-  'https://lms-frontend-dx27.onrender.com' 
+  'https://learning-management-system-d45ev9syr-prajwal03714s-projects.vercel.app' 
 ];
 
 app.use(cors({
