@@ -17,6 +17,6 @@ jobs:
       run: |
         curl -X POST ${{ secrets.RENDER_BACKEND_HOOK }}
 
-    - name: Trigger Frontend Deploy on Render
-      run: |
-        curl -X POST ${{ secrets.VERCEL_FRONTEND_HOOK }}
+    # - name: Trigger Frontend Deploy on Render
+    #   run: |
+    #     curl -X POST ${{ secrets.VERCEL_FRONTEND_HOOK }}
