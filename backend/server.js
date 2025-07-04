@@ -31,7 +31,7 @@ const chatRoutes = require('./src/routes/chatRoutes');
 // Middleware
 const allowedOrigins = [
   'http://localhost:3000',
-  'https://learning-management-system-d45ev9syr-prajwal03714s-projects.vercel.app' 
+  'learning-management-system-studymate.vercel.app' 
 ];
 
 app.use(cors({
