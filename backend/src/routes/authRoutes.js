@@ -76,7 +76,7 @@ router.get('/google/callback', passport.authenticate('google', {
   );
 
   // ✅ REDIRECT instead of res.json
-  res.redirect(`learning-management-system-studymate.vercel.app/oauth-callback?token=${token}`);
+  res.redirect(`learning-management-system-3w2c6euqn-prajwal03714s-projects.vercel.app/oauth-callback?token=${token}`);
 });
 
 router.get('/facebook', passport.authenticate('facebook', { session: false ,   prompt: 'consent select_account'
@@ -92,7 +92,7 @@ router.get('/facebook/callback', passport.authenticate('facebook', {
     { expiresIn: '1d' }
   );
 
-  res.redirect(`learning-management-system-studymate.vercel.app/oauth-callback?token=${token}`);
+  res.redirect(`learning-management-system-3w2c6euqn-prajwal03714s-projects.vercel.app/oauth-callback?token=${token}`);
 });
 
 router.post("/instructor-login", instructorLogin);
